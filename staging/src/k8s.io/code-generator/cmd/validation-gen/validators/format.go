@@ -51,7 +51,7 @@ var (
 	// Keep this list alphabetized.
 	// TODO: uncomment the following when we've done the homework
 	// to be sure it works the current state of IP manual-ratcheting
-	// ipSloppyValidator         = types.Name{Package: libValidationPkg, Name: "IPSloppy"}
+	ipSloppyValidator         = types.Name{Package: libValidationPkg, Name: "IPSloppy"}
 	extendedResourceNameValidator       = types.Name{Package: libValidationPkg, Name: "ExtendedResourceName"}
 	labelKeyValidator                   = types.Name{Package: libValidationPkg, Name: "LabelKey"}
 	labelValueValidator                 = types.Name{Package: libValidationPkg, Name: "LabelValue"}
@@ -91,10 +91,8 @@ func getFormatValidationFunction(format string) (FunctionGen, error) {
 		return Function(formatTagName, DefaultFlags, extendedResourceNameValidator), nil
 	// TODO: uncomment the following when we've done the homework
 	// to be sure it works the current state of IP manual-ratcheting
-	/*
-		case "k8s-ip":
-			return Function(formatTagName, DefaultFlags, ipSloppyValidator), nil
-	*/
+	case "k8s-ip":
+		return Function(formatTagName, DefaultFlags, ipSloppyValidator), nil
 	case "k8s-label-key":
 		return Function(formatTagName, DefaultFlags, labelKeyValidator), nil
 	case "k8s-label-value":
