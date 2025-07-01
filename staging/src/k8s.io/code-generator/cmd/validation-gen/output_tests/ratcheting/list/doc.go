@@ -119,3 +119,13 @@ type ItemList struct {
 	// +k8s:listMapKey=key
 	Items []Item `json:"items"`
 }
+
+type DirectComparableStruct struct {
+	A int `json:"a"`
+	B int `json:"b"`
+}
+
+type NonDirectComparableStruct struct {
+	A *int `json:"a"`
+	B *int `json:"b"`
+}
