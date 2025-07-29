@@ -48,18 +48,10 @@ func RegisterValidations(scheme *testscheme.Scheme) error {
 	return nil
 }
 
-// Validate_DNSLabelStringType validates an instance of DNSLabelStringType according
+// Validate_ShortNameStringType validates an instance of ShortNameStringType according
 // to declarative validation rules in the API schema.
-func Validate_DNSLabelStringType(ctx context.Context, op operation.Operation, fldPath *field.Path, obj, oldObj *DNSLabelStringType) (errs field.ErrorList) {
+func Validate_ShortNameStringType(ctx context.Context, op operation.Operation, fldPath *field.Path, obj, oldObj *ShortNameStringType) (errs field.ErrorList) {
 	errs = append(errs, validate.ShortName(ctx, op, fldPath, obj, oldObj)...)
-
-	return errs
-}
-
-// Validate_IPStringType validates an instance of IPStringType according
-// to declarative validation rules in the API schema.
-func Validate_IPStringType(ctx context.Context, op operation.Operation, fldPath *field.Path, obj, oldObj *IPStringType) (errs field.ErrorList) {
-	errs = append(errs, validate.IPSloppy(ctx, op, fldPath, obj, oldObj)...)
 
 	return errs
 }
@@ -69,43 +61,7 @@ func Validate_IPStringType(ctx context.Context, op operation.Operation, fldPath 
 func Validate_Struct(ctx context.Context, op operation.Operation, fldPath *field.Path, obj, oldObj *Struct) (errs field.ErrorList) {
 	// field Struct.TypeMeta has no validation
 
-	// field Struct.IPField
-	errs = append(errs,
-		func(fldPath *field.Path, obj, oldObj *string, oldValueCorrelated bool) (errs field.ErrorList) {
-			// don't revalidate unchanged data
-			if oldValueCorrelated && op.Type == operation.Update && (obj == oldObj || (obj != nil && oldObj != nil && *obj == *oldObj)) {
-				return nil
-			}
-			// call field-attached validations
-			errs = append(errs, validate.IPSloppy(ctx, op, fldPath, obj, oldObj)...)
-			return
-		}(fldPath.Child("ipField"), &obj.IPField, safe.Field(oldObj, func(oldObj *Struct) *string { return &oldObj.IPField }), oldObj != nil)...)
-
-	// field Struct.IPPtrField
-	errs = append(errs,
-		func(fldPath *field.Path, obj, oldObj *string, oldValueCorrelated bool) (errs field.ErrorList) {
-			// don't revalidate unchanged data
-			if oldValueCorrelated && op.Type == operation.Update && (obj == oldObj || (obj != nil && oldObj != nil && *obj == *oldObj)) {
-				return nil
-			}
-			// call field-attached validations
-			errs = append(errs, validate.IPSloppy(ctx, op, fldPath, obj, oldObj)...)
-			return
-		}(fldPath.Child("ipPtrField"), obj.IPPtrField, safe.Field(oldObj, func(oldObj *Struct) *string { return oldObj.IPPtrField }), oldObj != nil)...)
-
-	// field Struct.IPTypedefField
-	errs = append(errs,
-		func(fldPath *field.Path, obj, oldObj *IPStringType, oldValueCorrelated bool) (errs field.ErrorList) {
-			// don't revalidate unchanged data
-			if oldValueCorrelated && op.Type == operation.Update && (obj == oldObj || (obj != nil && oldObj != nil && *obj == *oldObj)) {
-				return nil
-			}
-			// call the type's validation function
-			errs = append(errs, Validate_IPStringType(ctx, op, fldPath, obj, oldObj)...)
-			return
-		}(fldPath.Child("ipTypedefField"), &obj.IPTypedefField, safe.Field(oldObj, func(oldObj *Struct) *IPStringType { return &oldObj.IPTypedefField }), oldObj != nil)...)
-
-	// field Struct.DNSLabelField
+	// field Struct.ShortNameField
 	errs = append(errs,
 		func(fldPath *field.Path, obj, oldObj *string, oldValueCorrelated bool) (errs field.ErrorList) {
 			// don't revalidate unchanged data
@@ -115,9 +71,9 @@ func Validate_Struct(ctx context.Context, op operation.Operation, fldPath *field
 			// call field-attached validations
 			errs = append(errs, validate.ShortName(ctx, op, fldPath, obj, oldObj)...)
 			return
-		}(fldPath.Child("dnsLabelField"), &obj.DNSLabelField, safe.Field(oldObj, func(oldObj *Struct) *string { return &oldObj.DNSLabelField }), oldObj != nil)...)
+		}(fldPath.Child("shortNameField"), &obj.ShortNameField, safe.Field(oldObj, func(oldObj *Struct) *string { return &oldObj.ShortNameField }), oldObj != nil)...)
 
-	// field Struct.DNSLabelPtrField
+	// field Struct.ShortNamePtrField
 	errs = append(errs,
 		func(fldPath *field.Path, obj, oldObj *string, oldValueCorrelated bool) (errs field.ErrorList) {
 			// don't revalidate unchanged data
@@ -127,19 +83,19 @@ func Validate_Struct(ctx context.Context, op operation.Operation, fldPath *field
 			// call field-attached validations
 			errs = append(errs, validate.ShortName(ctx, op, fldPath, obj, oldObj)...)
 			return
-		}(fldPath.Child("dnsLabelPtrField"), obj.DNSLabelPtrField, safe.Field(oldObj, func(oldObj *Struct) *string { return oldObj.DNSLabelPtrField }), oldObj != nil)...)
+		}(fldPath.Child("shortNamePtrField"), obj.ShortNamePtrField, safe.Field(oldObj, func(oldObj *Struct) *string { return oldObj.ShortNamePtrField }), oldObj != nil)...)
 
-	// field Struct.DNSLabelTypedefField
+	// field Struct.ShortNameTypedefField
 	errs = append(errs,
-		func(fldPath *field.Path, obj, oldObj *DNSLabelStringType, oldValueCorrelated bool) (errs field.ErrorList) {
+		func(fldPath *field.Path, obj, oldObj *ShortNameStringType, oldValueCorrelated bool) (errs field.ErrorList) {
 			// don't revalidate unchanged data
 			if oldValueCorrelated && op.Type == operation.Update && (obj == oldObj || (obj != nil && oldObj != nil && *obj == *oldObj)) {
 				return nil
 			}
 			// call the type's validation function
-			errs = append(errs, Validate_DNSLabelStringType(ctx, op, fldPath, obj, oldObj)...)
+			errs = append(errs, Validate_ShortNameStringType(ctx, op, fldPath, obj, oldObj)...)
 			return
-		}(fldPath.Child("dnsLabelTypedefField"), &obj.DNSLabelTypedefField, safe.Field(oldObj, func(oldObj *Struct) *DNSLabelStringType { return &oldObj.DNSLabelTypedefField }), oldObj != nil)...)
+		}(fldPath.Child("shortNameTypedefField"), &obj.ShortNameTypedefField, safe.Field(oldObj, func(oldObj *Struct) *ShortNameStringType { return &oldObj.ShortNameTypedefField }), oldObj != nil)...)
 
 	return errs
 }
