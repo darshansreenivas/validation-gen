@@ -63,16 +63,12 @@ func Validate_RuntimeClass(ctx context.Context, op operation.Operation, fldPath 
 				return nil
 			}
 			// call field-attached validations
-			earlyReturn := false
 			if e := validate.ImmutableComparable(ctx, op, fldPath, obj, oldObj); len(e) != 0 {
 				errs = append(errs, e...)
-				earlyReturn = true
+				return // do not proceed
 			}
 			if e := validate.RequiredValue(ctx, op, fldPath, obj, oldObj); len(e) != 0 {
 				errs = append(errs, e...)
-				earlyReturn = true
-			}
-			if earlyReturn {
 				return // do not proceed
 			}
 			errs = append(errs, validate.ShortName(ctx, op, fldPath, obj, oldObj)...)
