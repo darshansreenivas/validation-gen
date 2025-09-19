@@ -53,7 +53,7 @@ func RegisterValidations(scheme *runtime.Scheme) error {
 	// type ResourceClaim
 	scheme.AddValidationFunc((*resourcev1beta2.ResourceClaim)(nil), func(ctx context.Context, op operation.Operation, obj, oldObj interface{}) field.ErrorList {
 		switch op.Request.SubresourcePath() {
-		case "/", "status":
+		case "/", "/status":
 			return Validate_ResourceClaim(ctx, op, nil /* fldPath */, obj.(*resourcev1beta2.ResourceClaim), safe.Cast[*resourcev1beta2.ResourceClaim](oldObj))
 		}
 		return field.ErrorList{field.InternalError(nil, fmt.Errorf("no validation found for %T, subresource: %v", obj, op.Request.SubresourcePath()))}
