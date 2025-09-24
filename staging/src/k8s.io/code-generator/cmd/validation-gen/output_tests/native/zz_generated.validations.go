@@ -62,6 +62,9 @@ func Validate_MyObject(ctx context.Context, op operation.Operation, fldPath *fie
 				return nil
 			}
 			// call field-attached validations
+			if e := validate.OptionalValue(ctx, op, fldPath, obj, oldObj); len(e) != 0 {
+				return // do not proceed
+			}
 			errs = append(errs, validate.UUID(ctx, op, fldPath, obj, oldObj)...)
 			return
 		}(fldPath.Child("uuidField"), &obj.UUIDField, safe.Field(oldObj, func(oldObj *MyObject) *string { return &oldObj.UUIDField }), oldObj != nil)...)
@@ -74,6 +77,9 @@ func Validate_MyObject(ctx context.Context, op operation.Operation, fldPath *fie
 				return nil
 			}
 			// call field-attached validations
+			if e := validate.OptionalValue(ctx, op, fldPath, obj, oldObj); len(e) != 0 {
+				return // do not proceed
+			}
 			errs = append(errs, validate.UUID(ctx, op, fldPath, obj, oldObj)...)
 			return
 		}(fldPath.Child("uuidFieldWithoutDV"), &obj.UUIDFieldWithoutDV, safe.Field(oldObj, func(oldObj *MyObject) *string { return &oldObj.UUIDFieldWithoutDV }), oldObj != nil)...)
@@ -86,6 +92,9 @@ func Validate_MyObject(ctx context.Context, op operation.Operation, fldPath *fie
 				return nil
 			}
 			// call field-attached validations
+			if e := validate.OptionalPointer(ctx, op, fldPath, obj, oldObj); len(e) != 0 {
+				return // do not proceed
+			}
 			errs = append(errs, validate.UUID(ctx, op, fldPath, obj, oldObj)...)
 			return
 		}(fldPath.Child("uuidPtrField"), obj.UUIDPtrField, safe.Field(oldObj, func(oldObj *MyObject) *string { return oldObj.UUIDPtrField }), oldObj != nil)...)
@@ -98,6 +107,9 @@ func Validate_MyObject(ctx context.Context, op operation.Operation, fldPath *fie
 				return nil
 			}
 			// call field-attached validations
+			if e := validate.OptionalPointer(ctx, op, fldPath, obj, oldObj); len(e) != 0 {
+				return // do not proceed
+			}
 			errs = append(errs, validate.UUID(ctx, op, fldPath, obj, oldObj)...)
 			return
 		}(fldPath.Child("uuidPtrFieldWithoutDV"), obj.UUIDPtrFieldWithoutDV, safe.Field(oldObj, func(oldObj *MyObject) *string { return oldObj.UUIDPtrFieldWithoutDV }), oldObj != nil)...)
@@ -294,6 +306,9 @@ func Validate_MyObject(ctx context.Context, op operation.Operation, fldPath *fie
 				return nil
 			}
 			// call field-attached validations
+			if e := validate.OptionalValue(ctx, op, fldPath, obj, oldObj); len(e) != 0 {
+				return // do not proceed
+			}
 			errs = append(errs, validate.IPSloppy(ctx, op, fldPath, obj, oldObj)...)
 			return
 		}(fldPath.Child("ipAddress"), &obj.IPAddress, safe.Field(oldObj, func(oldObj *MyObject) *string { return &oldObj.IPAddress }), oldObj != nil)...)
@@ -306,6 +321,9 @@ func Validate_MyObject(ctx context.Context, op operation.Operation, fldPath *fie
 				return nil
 			}
 			// call field-attached validations
+			if e := validate.OptionalValue(ctx, op, fldPath, obj, oldObj); len(e) != 0 {
+				return // do not proceed
+			}
 			errs = append(errs, validate.IPSloppy(ctx, op, fldPath, obj, oldObj)...)
 			return
 		}(fldPath.Child("ipAddressWithoutDV"), &obj.IPAddressWithoutDV, safe.Field(oldObj, func(oldObj *MyObject) *string { return &oldObj.IPAddressWithoutDV }), oldObj != nil)...)

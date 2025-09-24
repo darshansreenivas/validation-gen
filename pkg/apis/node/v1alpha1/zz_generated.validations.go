@@ -82,7 +82,7 @@ func Validate_RuntimeClassSpec(ctx context.Context, op operation.Operation, fldP
 				return nil
 			}
 			// call field-attached validations
-			if e := validate.ImmutableComparable(ctx, op, fldPath, obj, oldObj); len(e) != 0 {
+			if e := validate.Immutable(ctx, op, fldPath, obj, oldObj); len(e) != 0 {
 				errs = append(errs, e...)
 				return // do not proceed
 			}

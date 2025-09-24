@@ -70,7 +70,7 @@ func Validate_ImmutableStruct(ctx context.Context, op operation.Operation, fldPa
 				return nil
 			}
 			// call field-attached validations
-			if e := validate.EachSliceVal(ctx, op, fldPath, obj, oldObj, nil, nil, validate.ImmutableComparable); len(e) != 0 {
+			if e := validate.EachSliceVal(ctx, op, fldPath, obj, oldObj, nil, nil, validate.Immutable); len(e) != 0 {
 				errs = append(errs, e...)
 				return // do not proceed
 			}
@@ -85,7 +85,7 @@ func Validate_ImmutableStruct(ctx context.Context, op operation.Operation, fldPa
 				return nil
 			}
 			// call field-attached validations
-			if e := validate.EachSliceVal(ctx, op, fldPath, obj, oldObj, validate.DirectEqual, nil, validate.ImmutableComparable); len(e) != 0 {
+			if e := validate.EachSliceVal(ctx, op, fldPath, obj, oldObj, validate.DirectEqual, nil, validate.Immutable); len(e) != 0 {
 				errs = append(errs, e...)
 				return // do not proceed
 			}
@@ -102,7 +102,7 @@ func Validate_ImmutableStruct(ctx context.Context, op operation.Operation, fldPa
 				return nil
 			}
 			// call field-attached validations
-			if e := validate.EachSliceVal(ctx, op, fldPath, obj, oldObj, nil, nil, validate.ImmutableReflect); len(e) != 0 {
+			if e := validate.EachSliceVal(ctx, op, fldPath, obj, oldObj, nil, nil, validate.Immutable); len(e) != 0 {
 				errs = append(errs, e...)
 				return // do not proceed
 			}
@@ -117,7 +117,7 @@ func Validate_ImmutableStruct(ctx context.Context, op operation.Operation, fldPa
 				return nil
 			}
 			// call field-attached validations
-			if e := validate.EachSliceVal(ctx, op, fldPath, obj, oldObj, validate.SemanticDeepEqual, nil, validate.ImmutableReflect); len(e) != 0 {
+			if e := validate.EachSliceVal(ctx, op, fldPath, obj, oldObj, validate.SemanticDeepEqual, nil, validate.Immutable); len(e) != 0 {
 				errs = append(errs, e...)
 				return // do not proceed
 			}
@@ -134,7 +134,7 @@ func Validate_ImmutableStruct(ctx context.Context, op operation.Operation, fldPa
 				return nil
 			}
 			// call field-attached validations
-			if e := validate.EachSliceVal(ctx, op, fldPath, obj, oldObj, nil, nil, validate.ImmutableComparable); len(e) != 0 {
+			if e := validate.EachSliceVal(ctx, op, fldPath, obj, oldObj, nil, nil, validate.Immutable); len(e) != 0 {
 				errs = append(errs, e...)
 				return // do not proceed
 			}
@@ -149,7 +149,7 @@ func Validate_ImmutableStruct(ctx context.Context, op operation.Operation, fldPa
 				return nil
 			}
 			// call field-attached validations
-			if e := validate.EachSliceVal(ctx, op, fldPath, obj, oldObj, validate.DirectEqual, nil, validate.ImmutableComparable); len(e) != 0 {
+			if e := validate.EachSliceVal(ctx, op, fldPath, obj, oldObj, validate.DirectEqual, nil, validate.Immutable); len(e) != 0 {
 				errs = append(errs, e...)
 				return // do not proceed
 			}
@@ -166,7 +166,7 @@ func Validate_ImmutableStruct(ctx context.Context, op operation.Operation, fldPa
 				return nil
 			}
 			// call field-attached validations
-			if e := validate.EachSliceVal(ctx, op, fldPath, obj, oldObj, validate.SemanticDeepEqual, nil, validate.ImmutableReflect); len(e) != 0 {
+			if e := validate.EachSliceVal(ctx, op, fldPath, obj, oldObj, validate.SemanticDeepEqual, nil, validate.Immutable); len(e) != 0 {
 				errs = append(errs, e...)
 				return // do not proceed
 			}

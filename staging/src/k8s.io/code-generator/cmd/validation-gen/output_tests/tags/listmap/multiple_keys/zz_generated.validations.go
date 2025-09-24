@@ -75,7 +75,7 @@ func Validate_Struct(ctx context.Context, op operation.Operation, fldPath *field
 			// call field-attached validations
 			if e := validate.EachSliceVal(ctx, op, fldPath, obj, oldObj, func(a OtherStruct, b OtherStruct) bool {
 				return a.Key1Field == b.Key1Field && a.Key2Field == b.Key2Field
-			}, validate.DirectEqual, validate.ImmutableComparable); len(e) != 0 {
+			}, validate.DirectEqual, validate.Immutable); len(e) != 0 {
 				errs = append(errs, e...)
 				return // do not proceed
 			}
@@ -96,7 +96,7 @@ func Validate_Struct(ctx context.Context, op operation.Operation, fldPath *field
 			// call field-attached validations
 			if e := validate.EachSliceVal(ctx, op, fldPath, obj, oldObj, func(a OtherTypedefStruct, b OtherTypedefStruct) bool {
 				return a.Key1Field == b.Key1Field && a.Key2Field == b.Key2Field
-			}, validate.DirectEqual, validate.ImmutableComparable); len(e) != 0 {
+			}, validate.DirectEqual, validate.Immutable); len(e) != 0 {
 				errs = append(errs, e...)
 				return // do not proceed
 			}
@@ -117,7 +117,7 @@ func Validate_Struct(ctx context.Context, op operation.Operation, fldPath *field
 			// call field-attached validations
 			if e := validate.EachSliceVal(ctx, op, fldPath, obj, oldObj, func(a OtherStruct, b OtherStruct) bool {
 				return a.Key1Field == b.Key1Field && a.Key2Field == b.Key2Field
-			}, validate.DirectEqual, validate.ImmutableComparable); len(e) != 0 {
+			}, validate.DirectEqual, validate.Immutable); len(e) != 0 {
 				errs = append(errs, e...)
 				return // do not proceed
 			}
