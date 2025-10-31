@@ -18,6 +18,7 @@ package validate
 
 import (
 	"context"
+	"fmt"
 	"regexp"
 	"testing"
 
@@ -132,6 +133,66 @@ func TestMaxItems(t *testing.T) {
 				t.Errorf("case %d: wrong error\nexpected: %q\n     got: %v", i, tc.err, fmtErrs(result))
 			}
 		}
+	}
+}
+
+func TestMaxProperties(t *testing.T) {
+	cases := []struct {
+		name       string
+		properties int
+		max        int
+		err        string // regex
+	}{{
+		name:       "0 properties, max 0",
+		properties: 0,
+		max:        0,
+	}, {
+		name:       "1 property, max 0",
+		properties: 1,
+		max:        0,
+		err:        "fldpath: Too many.*must have at most",
+	}, {
+		name:       "1 property, max 1",
+		properties: 1,
+		max:        1,
+	}, {
+		name:       "2 properties, max 1",
+		properties: 2,
+		max:        1,
+		err:        "fldpath: Too many.*must have at most",
+	}, {
+		name:       "0 properties, max -1",
+		properties: 0,
+		max:        -1,
+		err:        "fldpath: Too many.*too many items",
+	}}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			value := make(map[string]string, tc.properties)
+			for i := range tc.properties {
+				value[fmt.Sprintf("%d", i)] = "value"
+			}
+
+			result := MaxProperties(context.Background(), operation.Operation{}, field.NewPath("fldpath"), value, nil, tc.max)
+			if len(result) > 0 && tc.err == "" {
+				t.Errorf("unexpected failure: %v", fmtErrs(result))
+				return
+			}
+			if len(result) == 0 && tc.err != "" {
+				t.Errorf("unexpected success: expected %q", tc.err)
+				return
+			}
+			if len(result) > 0 {
+				if len(result) > 1 {
+					t.Errorf("unexepected multi-error: %v", fmtErrs(result))
+					return
+				}
+				if re := regexp.MustCompile(tc.err); !re.MatchString(result[0].Error()) {
+					t.Errorf("wrong error\nexpected: %q\n     got: %v", tc.err, fmtErrs(result))
+				}
+			}
+		})
 	}
 }
 

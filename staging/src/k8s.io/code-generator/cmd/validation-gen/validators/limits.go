@@ -27,13 +27,15 @@ import (
 )
 
 const (
-	maxItemsTagName  = "k8s:maxItems"
-	minimumTagName   = "k8s:minimum"
-	maxLengthTagName = "k8s:maxLength"
+	maxItemsTagName      = "k8s:maxItems"
+	minimumTagName       = "k8s:minimum"
+	maxLengthTagName     = "k8s:maxLength"
+	maxPropertiesTagName = "k8s:maxProperties"
 )
 
 func init() {
 	RegisterTagValidator(maxItemsTagValidator{})
+	RegisterTagValidator(maxPropertiesTagValidator{})
 	RegisterTagValidator(minimumTagValidator{})
 	RegisterTagValidator(maxLengthTagValidator{})
 }
@@ -143,6 +145,60 @@ func (mitv maxItemsTagValidator) Docs() TagDoc {
 		Payloads: []TagPayloadDoc{{
 			Description: "<non-negative integer>",
 			Docs:        "This list must be no more than X items long.",
+		}},
+		PayloadsType:     codetags.ValueTypeInt,
+		PayloadsRequired: true,
+	}
+}
+
+type maxPropertiesTagValidator struct{}
+
+func (maxPropertiesTagValidator) Init(_ Config) {}
+
+func (maxPropertiesTagValidator) TagName() string {
+	return maxPropertiesTagName
+}
+
+var maxPropertiesTagValidScopes = sets.New(
+	ScopeType,
+	ScopeField,
+)
+
+func (maxPropertiesTagValidator) ValidScopes() sets.Set[Scope] {
+	return maxPropertiesTagValidScopes
+}
+
+var maxPropertiesValidator = types.Name{Package: libValidationPkg, Name: "MaxProperties"}
+
+func (maxPropertiesTagValidator) GetValidations(context Context, tag codetags.Tag) (Validations, error) {
+	var result Validations
+
+	// NOTE: pointers to maps are not supported, so we should never see a pointer here.
+	if t := util.NativeType(context.Type); t.Kind != types.Map && t.Key.Kind != types.Builtin && t.Key.Name.Name != "string" {
+		return Validations{}, fmt.Errorf("can only be used on map types with string-based keys (%s)", rootTypeString(context.Type, t))
+	}
+
+	intVal, err := strconv.Atoi(tag.Value)
+	if err != nil {
+		return result, fmt.Errorf("failed to parse tag payload as int: %w", err)
+	}
+	if intVal < 0 {
+		return result, fmt.Errorf("must be greater than or equal to zero")
+	}
+	// Note: maxProperties short-circuits other validations.
+	result.AddFunction(Function(maxPropertiesTagName, ShortCircuit, maxPropertiesValidator, intVal))
+	return result, nil
+}
+
+func (mptv maxPropertiesTagValidator) Docs() TagDoc {
+	return TagDoc{
+		Tag:            mptv.TagName(),
+		StabilityLevel: Alpha,
+		Scopes:         mptv.ValidScopes().UnsortedList(),
+		Description:    "Indicates that a map has a limit on its size.",
+		Payloads: []TagPayloadDoc{{
+			Description: "<non-negative integer>",
+			Docs:        "This map must have no more than X properties.",
 		}},
 		PayloadsType:     codetags.ValueTypeInt,
 		PayloadsRequired: true,
