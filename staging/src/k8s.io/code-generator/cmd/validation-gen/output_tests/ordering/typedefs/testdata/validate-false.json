@@ -16,8 +16,7 @@
   },
   "*typedefs.EMultiple": {
     "": [
-      "EMultiple, ShortCircuit 1",
-      "EMultiple, ShortCircuit 2"
+      "EMultiple, ShortCircuit 1"
     ]
   }
 }

@@ -58,11 +58,11 @@ func Test(t *testing.T) {
 		NotEnumField:    "x",
 		NotEnumPtrField: ptr.To(NotEnum("x")),
 	}).ExpectMatches(field.ErrorMatcher{}.ByType().ByField().ByOrigin().ByDeclarativeOnly(), field.ErrorList{
-		field.NotSupported(field.NewPath("enum0Field"), Enum0("x"), []Enum0{}).WithOrigin("enum"),
-		field.NotSupported(field.NewPath("enum0PtrField"), Enum0("x"), []Enum0{}).WithOrigin("enum"),
-		field.NotSupported(field.NewPath("enum1Field"), Enum1("x"), []Enum1{E1V1}).WithOrigin("enum"),
-		field.NotSupported(field.NewPath("enum1PtrField"), Enum1("x"), []Enum1{E1V1}).WithOrigin("enum"),
-		field.NotSupported(field.NewPath("enum2Field"), Enum2("x"), []Enum2{E2V1, E2V2}).WithOrigin("enum"),
-		field.NotSupported(field.NewPath("enum2PtrField"), Enum2("x"), []Enum2{E2V1, E2V2}).WithOrigin("enum"),
+		field.NotSupported(field.NewPath("enum0Field"), Enum0("x"), []Enum0{}),
+		field.NotSupported(field.NewPath("enum0PtrField"), Enum0("x"), []Enum0{}),
+		field.NotSupported(field.NewPath("enum1Field"), Enum1("x"), []Enum1{E1V1}),
+		field.NotSupported(field.NewPath("enum1PtrField"), Enum1("x"), []Enum1{E1V1}),
+		field.NotSupported(field.NewPath("enum2Field"), Enum2("x"), []Enum2{E2V1, E2V2}),
+		field.NotSupported(field.NewPath("enum2PtrField"), Enum2("x"), []Enum2{E2V1, E2V2}),
 	})
 }

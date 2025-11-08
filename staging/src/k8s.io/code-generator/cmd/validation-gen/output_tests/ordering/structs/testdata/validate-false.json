@@ -42,8 +42,7 @@
   },
   "*structs.TMultiple": {
     "": [
-      "TMultiple, ShortCircuit 1",
-      "TMultiple, ShortCircuit 2"
+      "TMultiple, ShortCircuit 1"
     ]
   }
 }

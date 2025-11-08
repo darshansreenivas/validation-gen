@@ -263,7 +263,8 @@ const (
 
 var stabilityOrder = map[StabilityLevel]int{
 	Alpha:  0,
-	Stable: 1,
+	Beta:   1,
+	Stable: 2,
 }
 
 // Min returns the minimum of two stability levels, or an error if either
