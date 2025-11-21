@@ -1377,7 +1377,21 @@ func emitCallsToValidators(c *generator.Context, validations []validators.Functi
 		if cohortName != "" {
 			sw.Do("func() { // cohort $.$\n", cohortName)
 		}
-		for _, v := range validations {
+
+		hasShortCircuits := false
+		lastShortCircuitIdx := -1
+		for i, v := range validations {
+			if v.Flags.IsSet(validators.ShortCircuit) {
+				hasShortCircuits = true
+				lastShortCircuitIdx = i
+			}
+		}
+
+		if hasShortCircuits {
+			sw.Do("earlyReturn := false\n", nil)
+		}
+
+		for i, v := range validations {
 			isShortCircuit := v.Flags.IsSet(validators.ShortCircuit)
 			isNonError := v.Flags.IsSet(validators.NonError)
 
@@ -1406,6 +1420,34 @@ func emitCallsToValidators(c *generator.Context, validations []validators.Functi
 				sw.Do(")", targs)
 			}
 
+			// If validation is conditional, wrap the validation function with a conditions check.
+			if !v.Conditions.Empty() {
+				emitBaseFunction := emitCall
+				emitCall = func() {
+					sw.Do("func() $.field.ErrorList|raw$ {\n", targs)
+					sw.Do("  if ", nil)
+					firstCondition := true
+					if len(v.Conditions.OptionEnabled) > 0 {
+						sw.Do("op.HasOption($.$)", strconv.Quote(v.Conditions.OptionEnabled))
+						firstCondition = false
+					}
+					if len(v.Conditions.OptionDisabled) > 0 {
+						if !firstCondition {
+							sw.Do(" && ", nil)
+						}
+						sw.Do("!op.HasOption($.$)", strconv.Quote(v.Conditions.OptionDisabled))
+					}
+					sw.Do(" {\n", nil)
+					sw.Do("    return ", nil)
+					emitBaseFunction()
+					sw.Do("\n", nil)
+					sw.Do("  } else {\n", nil)
+					sw.Do("    return nil // skip validation\n", nil)
+					sw.Do("  }\n", nil)
+					sw.Do("}()", nil)
+				}
+			}
+
 			for _, comment := range v.Comments {
 				sw.Do("// $.$\n", comment)
 			}
@@ -1414,10 +1456,17 @@ func emitCallsToValidators(c *generator.Context, validations []validators.Functi
 				emitCall()
 				sw.Do("; len(e) != 0 {\n", nil)
 				if !isNonError {
-					sw.Do("errs = append(errs, e...)\n", nil)
+					sw.Do("  errs = append(errs, e...)\n", nil)
 				}
-				sw.Do("    return // do not proceed\n", nil)
+				sw.Do("  earlyReturn = true\n", nil)
 				sw.Do("}\n", nil)
+
+				// Check for early return ONLY after the LAST short-circuit
+				if hasShortCircuits && i == lastShortCircuitIdx {
+					sw.Do("if earlyReturn {\n", nil)
+					sw.Do("  return // do not proceed\n", nil)
+					sw.Do("}\n", nil)
+				}
 			} else {
 				if isNonError {
 					emitCall()
