@@ -36,7 +36,7 @@ func (d *declarativeValidationNative) TagName() string {
 }
 
 func (d *declarativeValidationNative) ValidScopes() sets.Set[Scope] {
-	return sets.New(ScopeField)
+	return sets.New(ScopeField, ScopeListVal)
 }
 
 func (d *declarativeValidationNative) GetValidations(context Context, tag codetags.Tag) (Validations, error) {

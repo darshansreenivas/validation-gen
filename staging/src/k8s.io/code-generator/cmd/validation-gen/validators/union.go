@@ -117,7 +117,7 @@ func (udtv unionDiscriminatorTagValidator) GetValidations(context Context, tag c
 func (udtv unionDiscriminatorTagValidator) Docs() TagDoc {
 	return TagDoc{
 		Tag:            udtv.TagName(),
-		StabilityLevel: Beta,
+		StabilityLevel: Stable,
 		Scopes:         udtv.ValidScopes().UnsortedList(),
 		Description:    "Indicates that this field is the discriminator for a union.",
 		Args: []TagArgDoc{{
@@ -156,7 +156,7 @@ func (umtv unionMemberTagValidator) GetValidations(context Context, tag codetags
 func (umtv unionMemberTagValidator) Docs() TagDoc {
 	return TagDoc{
 		Tag:            umtv.TagName(),
-		StabilityLevel: Beta,
+		StabilityLevel: Stable,
 		Scopes:         umtv.ValidScopes().UnsortedList(),
 		Description:    "Indicates that this field is a member of a union.",
 		Args: []TagArgDoc{{
@@ -199,6 +199,8 @@ type union struct {
 	// "field name" (eg: `field[{"name": "succeeded"}]`), and the value is a
 	// list of selection criteria.
 	itemMembers map[string][]ListSelectorTerm
+	// isDeclarative indicates that the union is declarative.
+	isDeclarative bool
 }
 
 type unionMember struct {
@@ -264,6 +266,9 @@ func processUnionValidations(context Context, unions unions, varPrefix string,
 
 			// Handle field unions
 			for _, member := range u.fieldMembers {
+				if hasDeclarativeTag(member.CommentLines) {
+					u.isDeclarative = true
+				}
 				extractor := createMemberExtractor(ptrType, member)
 				extractorArgs = append(extractorArgs, extractor)
 			}
@@ -303,6 +308,9 @@ func processUnionValidations(context Context, unions unions, varPrefix string,
 
 				extraArgs := append([]any{supportVarName, discriminatorExtractor}, extractorArgs...)
 				fn := Function(tagName, DefaultFlags, discriminatedValidator, extraArgs...)
+				if u.isDeclarative {
+					fn.Flags |= DeclarativeOnly
+				}
 				result.Functions = append(result.Functions, fn)
 			} else {
 				supportVar := Variable(supportVarName, Function(tagName, DefaultFlags, newUnionMembership, getMemberArgs(u, context, false)...))
@@ -310,12 +318,21 @@ func processUnionValidations(context Context, unions unions, varPrefix string,
 
 				extraArgs := append([]any{supportVarName}, extractorArgs...)
 				fn := Function(tagName, DefaultFlags, undiscriminatedValidator, extraArgs...)
+				if u.isDeclarative {
+					fn.Flags |= DeclarativeOnly
+				}
 				result.Functions = append(result.Functions, fn)
 			}
 		}
 	}
 
 	return result, nil
+}
+
+func hasDeclarativeTag(comments []string) bool {
+	tags := codetags.Extract("+", comments)
+	_, ok := tags["k8s:declarativeValidationNative"]
+	return ok
 }
 
 func createMemberExtractor(ptrType *types.Type, member *types.Member) FunctionLiteral {

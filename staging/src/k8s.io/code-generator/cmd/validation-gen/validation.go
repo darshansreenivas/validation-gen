@@ -1394,6 +1394,7 @@ func emitCallsToValidators(c *generator.Context, validations []validators.Functi
 		for i, v := range validations {
 			isShortCircuit := v.Flags.IsSet(validators.ShortCircuit)
 			isNonError := v.Flags.IsSet(validators.NonError)
+			isDeclarativeOnly := v.Flags.IsSet(validators.DeclarativeOnly)
 
 			targs := generator.Args{
 				"funcName": c.Universe.Type(v.Function),
@@ -1473,6 +1474,9 @@ func emitCallsToValidators(c *generator.Context, validations []validators.Functi
 				} else {
 					sw.Do("errs = append(errs, ", nil)
 					emitCall()
+					if isDeclarativeOnly {
+						sw.Do(".MarkDeclarativeOnly()", nil)
+					}
 					sw.Do("...)\n", nil)
 				}
 			}
