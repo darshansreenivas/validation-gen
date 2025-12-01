@@ -39,7 +39,7 @@ func TestZeroOrOneOfValidation(t *testing.T) {
 				Field2: intPtr(2),
 			},
 			errs: field.ErrorList{
-				field.Invalid(nil, "", "must specify at most one of: `field1`, `field2`").MarkDeclarativeOnly(),
+				field.Invalid(nil, map[string]interface{}{"field1": int(1), "field2": int(2)}, "must specify at most one of: `field1`, `field2`").MarkDeclarativeOnly(),
 			},
 		},
 		{

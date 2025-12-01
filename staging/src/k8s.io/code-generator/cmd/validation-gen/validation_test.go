@@ -606,23 +606,30 @@ func TestDiscoverStruct(t *testing.T) {
 			expectErr: fmt.Errorf("field MyStruct.declarativeField: +k8s:declarativeValidationNative can only be used with stable validation tags, but found \"k8s:validateFalse\" which is Alpha"),
 		},
 		{
-			name: "struct with declarative native field slice with non-stable validations",
+			name: "struct with declarative native field slice with stable validations (item+zeroOrOneOf)",
 			typeToTest: &types.Type{
 				Kind: types.Struct,
-				Name: types.Name{Name: "MyStruct"},
+				Name: types.Name{Name: "MyStructSlice"},
 				Members: []types.Member{
 					{
 						Name: "DeclarativeField",
 						Type: &types.Type{
 							Kind: types.Slice,
-							Elem: types.String,
+							Elem: &types.Type{
+								Kind: types.Struct,
+								Name: types.Name{Name: "MyInnerStruct"},
+								Members: []types.Member{
+									{Name: "Name", Type: types.String, Tags: `json:"name"`},
+								},
+							},
 						},
-						CommentLines: []string{"+k8s:declarativeValidationNative", `+k8s:item(name: "failed")=+k8s:zeroOrOneOfMember`},
+						CommentLines: []string{"+k8s:declarativeValidationNative", "+k8s:listType=map", "+k8s:listMapKey=name", `+k8s:item(name: "failed")=+k8s:zeroOrOneOfMember`},
 						Tags:         `json:"declarativeField"`,
 					},
 				},
 			},
-			expectErr: fmt.Errorf("field MyStruct.declarativeField: +k8s:declarativeValidationNative can only be used with stable validation tags, but found \"k8s:item\" which is Alpha"),
+			expectErr:              nil,
+			expectedStabilityLevel: validators.Stable,
 		},
 		{
 			name: "struct with a field whose type has non-stable validations",

@@ -39,6 +39,10 @@ var newUnionMember = types.Name{Package: libValidationPkg, Name: "NewUnionMember
 var newUnionMembership = types.Name{Package: libValidationPkg, Name: "NewUnionMembership"}
 var unionVariablePrefix = "unionMembershipFor"
 
+// unionDefinitions stores all union definitions found by tag validators.
+// Key is the struct path.
+var unionDefinitions = map[string]unions{}
+
 func init() {
 	// Unions are comprised of multiple tags that need to share information.
 	// For field-based unions: tags are on struct fields, validation is on the struct
@@ -48,11 +52,33 @@ func init() {
 	// key examples:
 	//   - struct union: "MyStruct" (validation on the struct type)
 	//   - list union: "Pipeline.Tasks" (validation on the list field)
-	shared := map[string]unions{}
-	RegisterTypeValidator(unionTypeOrFieldValidator{shared})
-	RegisterFieldValidator(unionTypeOrFieldValidator{shared})
-	RegisterTagValidator(unionDiscriminatorTagValidator{shared})
-	RegisterTagValidator(unionMemberTagValidator{shared})
+	RegisterTypeValidator(unionTypeOrFieldValidator{unionDefinitions})
+	RegisterFieldValidator(unionTypeOrFieldValidator{unionDefinitions})
+	RegisterTagValidator(unionDiscriminatorTagValidator{unionDefinitions})
+	RegisterTagValidator(unionMemberTagValidator{unionDefinitions})
+}
+
+// MarkUnionDeclarative marks the union containing the given member as declarative.
+// parentPath is the path to the struct.
+// member is the field member (for struct unions).
+// fieldName is the field name (for list unions).
+func MarkUnionDeclarative(parentPath string, member *types.Member, fieldName string) {
+	us, ok := unionDefinitions[parentPath]
+	if !ok {
+		return
+	}
+	for _, u := range us {
+		// Check field members
+		for _, m := range u.fieldMembers {
+			if m == member {
+				u.isDeclarative = true
+			}
+		}
+		// Check list item members
+		if _, ok := u.itemMembers[fieldName]; ok {
+			u.isDeclarative = true
+		}
+	}
 }
 
 type unionTypeOrFieldValidator struct {
@@ -266,9 +292,6 @@ func processUnionValidations(context Context, unions unions, varPrefix string,
 
 			// Handle field unions
 			for _, member := range u.fieldMembers {
-				if hasDeclarativeTag(member.CommentLines) {
-					u.isDeclarative = true
-				}
 				extractor := createMemberExtractor(ptrType, member)
 				extractorArgs = append(extractorArgs, extractor)
 			}
@@ -327,12 +350,6 @@ func processUnionValidations(context Context, unions unions, varPrefix string,
 	}
 
 	return result, nil
-}
-
-func hasDeclarativeTag(comments []string) bool {
-	tags := codetags.Extract("+", comments)
-	_, ok := tags["k8s:declarativeValidationNative"]
-	return ok
 }
 
 func createMemberExtractor(ptrType *types.Type, member *types.Member) FunctionLiteral {
