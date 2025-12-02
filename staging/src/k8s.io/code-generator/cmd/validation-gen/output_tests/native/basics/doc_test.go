@@ -46,6 +46,8 @@ func TestMyObjectValidation(t *testing.T) {
 		SetListWithoutDV:                []string{"a", "b"},
 		NestedStable:                    NestedStableType{NestedField: StableType{InnerField: "abc"}, NestedFieldWithoutDV: StableType{InnerField: "abc"}},
 		NestedStableWithoutDV:           NestedStableType{NestedField: StableType{InnerField: "abc"}, NestedFieldWithoutDV: StableType{InnerField: "abc"}},
+		SubfieldTest:                    StableType{InnerField: "abcde"},
+		SubfieldTestWithoutDV:           StableType{InnerField: "abcde"},
 		IPAddress:                       "1.2.3.4",
 		IPAddressWithoutDV:              "1.2.3.4",
 	}
@@ -143,6 +145,19 @@ func TestMyObjectValidation(t *testing.T) {
 				field.Required(field.NewPath("nestedStable", "nestedFieldWithoutDV", "innerField"), "").MarkDeclarativeOnly(),
 				field.Required(field.NewPath("nestedStableWithoutDV", "nestedFieldWithoutDV", "innerField"), ""),
 				field.Required(field.NewPath("nestedStableWithoutDV", "nestedField", "innerField"), "").MarkDeclarativeOnly(),
+			},
+		},
+		{
+			name: "subfield",
+			obj: func() MyObject {
+				obj := validObj.DeepCopy()
+				obj.SubfieldTest.InnerField = "abcdefg"
+				obj.SubfieldTestWithoutDV.InnerField = "abcdefg"
+				return *obj
+			}(),
+			errs: field.ErrorList{
+				field.TooLong(field.NewPath("subfieldTest", "innerField"), "abcdefg", 5).MarkDeclarativeOnly(),
+				field.TooLong(field.NewPath("subfieldTestWithoutDV", "innerField"), "abcdefg", 5),
 			},
 		},
 		{

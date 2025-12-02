@@ -362,6 +362,46 @@ func Validate_MyObject(ctx context.Context, op operation.Operation, fldPath *fie
 			return
 		}(fldPath.Child("nestedStableWithoutDV"), &obj.NestedStableWithoutDV, safe.Field(oldObj, func(oldObj *MyObject) *NestedStableType { return &oldObj.NestedStableWithoutDV }), oldObj != nil)...)
 
+	// field MyObject.SubfieldTest
+	errs = append(errs,
+		func(fldPath *field.Path, obj, oldObj *StableType, oldValueCorrelated bool) (errs field.ErrorList) {
+			// this field validations are marked declarative only
+			defer func() {
+				errs = errs.MarkDeclarativeOnly()
+			}()
+			// don't revalidate unchanged data
+			if oldValueCorrelated && op.Type == operation.Update && (obj == oldObj || (obj != nil && oldObj != nil && *obj == *oldObj)) {
+				return nil
+			}
+			// call field-attached validations
+			func() { // cohort innerField
+				errs = append(errs, validate.Subfield(ctx, op, fldPath, obj, oldObj, "innerField", func(o *StableType) *string { return &o.InnerField }, validate.DirectEqualPtr, func(ctx context.Context, op operation.Operation, fldPath *field.Path, obj, oldObj *string) field.ErrorList {
+					return validate.MaxLength(ctx, op, fldPath, obj, oldObj, 5)
+				})...)
+			}()
+			// call the type's validation function
+			errs = append(errs, Validate_StableType(ctx, op, fldPath, obj, oldObj)...)
+			return
+		}(fldPath.Child("subfieldTest"), &obj.SubfieldTest, safe.Field(oldObj, func(oldObj *MyObject) *StableType { return &oldObj.SubfieldTest }), oldObj != nil)...)
+
+	// field MyObject.SubfieldTestWithoutDV
+	errs = append(errs,
+		func(fldPath *field.Path, obj, oldObj *StableType, oldValueCorrelated bool) (errs field.ErrorList) {
+			// don't revalidate unchanged data
+			if oldValueCorrelated && op.Type == operation.Update && (obj == oldObj || (obj != nil && oldObj != nil && *obj == *oldObj)) {
+				return nil
+			}
+			// call field-attached validations
+			func() { // cohort innerField
+				errs = append(errs, validate.Subfield(ctx, op, fldPath, obj, oldObj, "innerField", func(o *StableType) *string { return &o.InnerField }, validate.DirectEqualPtr, func(ctx context.Context, op operation.Operation, fldPath *field.Path, obj, oldObj *string) field.ErrorList {
+					return validate.MaxLength(ctx, op, fldPath, obj, oldObj, 5)
+				})...)
+			}()
+			// call the type's validation function
+			errs = append(errs, Validate_StableType(ctx, op, fldPath, obj, oldObj)...)
+			return
+		}(fldPath.Child("subfieldTestWithoutDV"), &obj.SubfieldTestWithoutDV, safe.Field(oldObj, func(oldObj *MyObject) *StableType { return &oldObj.SubfieldTestWithoutDV }), oldObj != nil)...)
+
 	// field MyObject.IPAddress
 	errs = append(errs,
 		func(fldPath *field.Path, obj, oldObj *string, oldValueCorrelated bool) (errs field.ErrorList) {

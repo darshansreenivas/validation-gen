@@ -68,6 +68,8 @@ func (in *MyObject) DeepCopyInto(out *MyObject) {
 	}
 	out.NestedStable = in.NestedStable
 	out.NestedStableWithoutDV = in.NestedStableWithoutDV
+	out.SubfieldTest = in.SubfieldTest
+	out.SubfieldTestWithoutDV = in.SubfieldTestWithoutDV
 	return
 }
 

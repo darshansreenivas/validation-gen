@@ -93,6 +93,13 @@ type MyObject struct {
 
 	NestedStableWithoutDV NestedStableType `json:"nestedStableWithoutDV"`
 
+	// +k8s:subfield(innerField)=+k8s:maxLength=5
+	// +k8s:declarativeValidationNative
+	SubfieldTest StableType `json:"subfieldTest"`
+
+	// +k8s:subfield(innerField)=+k8s:maxLength=5
+	SubfieldTestWithoutDV StableType `json:"subfieldTestWithoutDV"`
+
 	// +k8s:optional
 	// +k8s:format=k8s-ip
 	// +k8s:declarativeValidationNative
