@@ -76,13 +76,24 @@ func WithNormalizationRules(rules []field.NormalizationRule) ValidationConfig {
 	}
 }
 
+// WithContainsDeclarativelyOnly marks the validation configuration to indicate that it includes
+// declarative validations that are defined *only* declaratively, lacking corresponding imperative validation.
+// This ensures that declarative validations are always executed. Declarative-only validation errors
+// are filtered from the full set of declarative validation errors and returned alongside other validation errors.
+func WithContainsDeclarativelyOnly() ValidationConfig {
+	return func(config *validationConfigOption) {
+		config.containsDeclarativeOnly = true
+	}
+}
+
 type validationConfigOption struct {
-	opType               operation.Type
-	options              []string
-	takeover             bool
-	subresourceGVKMapper GroupVersionKindProvider
-	validationIdentifier string
-	normalizationRules   []field.NormalizationRule
+	opType                  operation.Type
+	options                 []string
+	takeover                bool
+	subresourceGVKMapper    GroupVersionKindProvider
+	validationIdentifier    string
+	normalizationRules      []field.NormalizationRule
+	containsDeclarativeOnly bool
 }
 
 // validateDeclaratively validates obj and oldObj against declarative
@@ -334,14 +345,13 @@ func metricIdentifier(ctx context.Context, scheme *runtime.Scheme, obj runtime.O
 	return identifier, errs
 }
 
-// ValidateDeclarativelyWithMigrationChecks is a helper function that encapsulates the logic for running declarative validation.
-// It checks if the DeclarativeValidation feature gate is enabled, generates a validation identifier,
-// runs declarative validation, compares the results with imperative validation, and merges the errors if takeover is enabled.
+// ValidateDeclarativelyWithMigrationChecks encapsulates the logic for running declarative validation.
+// It proceeds if either the DeclarativeValidation feature gate is enabled or `containsDeclarativeOnly` is set.
+// The function generates a validation identifier, runs declarative validation,
+// and conditionally compares results with imperative validation and merges errors based on the feature gate and `takeover` flag.
+// Declarative-only errors are always appended to the result.
 func ValidateDeclarativelyWithMigrationChecks(ctx context.Context, scheme *runtime.Scheme, obj, oldObj runtime.Object, errs field.ErrorList, opType operation.Type, configOpts ...ValidationConfig) field.ErrorList {
-	if !utilfeature.DefaultFeatureGate.Enabled(features.DeclarativeValidation) {
-		return errs
-	}
-
+	declarativeValidationEnabled := utilfeature.DefaultFeatureGate.Enabled(features.DeclarativeValidation)
 	takeover := utilfeature.DefaultFeatureGate.Enabled(features.DeclarativeValidationTakeover)
 
 	validationIdentifier, err := metricIdentifier(ctx, scheme, obj, opType)
@@ -360,14 +370,34 @@ func ValidateDeclarativelyWithMigrationChecks(ctx context.Context, scheme *runti
 		opt(cfg)
 	}
 
+	if !declarativeValidationEnabled && !cfg.containsDeclarativeOnly {
+		return errs
+	}
+
 	// Call the panic-safe wrapper with the real validation function.
 	declarativeErrs := panicSafeValidateFunc(validateDeclaratively, cfg.takeover, cfg.validationIdentifier)(ctx, scheme, obj, oldObj, cfg)
 
-	compareDeclarativeErrorsAndEmitMismatches(ctx, errs, declarativeErrs, takeover, validationIdentifier, cfg.normalizationRules)
-	if takeover {
-		errs = append(errs.RemoveCoveredByDeclarative(), declarativeErrs...)
+	mirroredDVErrors := field.ErrorList{}
+	dvOnlyErrors := field.ErrorList{}
+	if cfg.containsDeclarativeOnly {
+		for _, err := range declarativeErrs {
+			if err.DeclarativeOnly {
+				dvOnlyErrors = append(dvOnlyErrors, err)
+			} else {
+				mirroredDVErrors = append(mirroredDVErrors, err)
+			}
+		}
+	} else {
+		mirroredDVErrors = declarativeErrs
 	}
 
+	if declarativeValidationEnabled {
+		compareDeclarativeErrorsAndEmitMismatches(ctx, errs, mirroredDVErrors, takeover, validationIdentifier, cfg.normalizationRules)
+		if takeover {
+			errs = append(errs.RemoveCoveredByDeclarative(), mirroredDVErrors...)
+		}
+	}
+	errs = append(errs, dvOnlyErrors...)
 	return errs
 }
 

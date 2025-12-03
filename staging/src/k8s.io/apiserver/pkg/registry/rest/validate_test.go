@@ -34,7 +34,10 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/validation/field"
 	genericapirequest "k8s.io/apiserver/pkg/endpoints/request"
+	"k8s.io/apiserver/pkg/features"
+	utilfeature "k8s.io/apiserver/pkg/util/feature"
 	"k8s.io/apiserver/pkg/validation"
+	featuregatetesting "k8s.io/component-base/featuregate/testing"
 	"k8s.io/component-base/metrics/legacyregistry"
 	"k8s.io/component-base/metrics/testutil"
 	"k8s.io/klog/v2"
@@ -819,6 +822,106 @@ func TestMetricIdentifier(t *testing.T) {
 			}
 			if result != tc.expected {
 				t.Errorf("expected: %s, got: %s", tc.expected, result)
+			}
+		})
+	}
+}
+
+func TestValidateDeclarativelyWithMigrationChecks(t *testing.T) {
+	// Create errors for testing
+	errImperative := field.ErrorList{
+		field.Invalid(field.NewPath("spec", "restartPolicy"), "imp", "imperative error"),
+		field.Forbidden(field.NewPath("spec", "restartPolicy"), "imperative error covered by declarative").MarkCoveredByDeclarative(),
+	}
+	errMirroredDeclarative := field.Invalid(field.NewPath("spec", "restartPolicy"), "dec", "declarative error")
+	errDeclarativeOnly := field.Invalid(field.NewPath("spec", "replicas"), "decOnly", "declarative only error").MarkDeclarativeOnly()
+
+	testCases := []struct {
+		name                    string
+		dvFeatureEnabled        bool
+		takeoverEnabled         bool
+		containsDeclarativeOnly bool
+		imperativeErrors        field.ErrorList
+		declarativeErrors       field.ErrorList
+		expectedErrors          field.ErrorList
+	}{
+		{
+			name:              "Feature Disabled, Not DeclarativeOnly -> Skips declarative",
+			imperativeErrors:  errImperative,
+			declarativeErrors: field.ErrorList{errMirroredDeclarative},
+			expectedErrors:    errImperative,
+		},
+		{
+			name:                    "Feature Disabled, contains DeclarativeOnly -> Returns DeclarativeOnly errors, ignores regular declarative errors",
+			containsDeclarativeOnly: true,
+			imperativeErrors:        errImperative,
+			declarativeErrors:       field.ErrorList{errMirroredDeclarative, errDeclarativeOnly},
+			expectedErrors:          append(errImperative, errDeclarativeOnly),
+		},
+		{
+			name:              "Feature Enabled, Not DeclarativeOnly -> Returns imperative (no takeover)",
+			dvFeatureEnabled:  true,
+			imperativeErrors:  errImperative,
+			declarativeErrors: field.ErrorList{errMirroredDeclarative},
+			expectedErrors:    errImperative,
+		},
+		{
+			name:                    "Feature Enabled, contains DeclarativeOnly -> Returns imperative + DeclarativeOnly",
+			dvFeatureEnabled:        true,
+			containsDeclarativeOnly: true,
+			imperativeErrors:        errImperative,
+			declarativeErrors:       field.ErrorList{errMirroredDeclarative, errDeclarativeOnly},
+			expectedErrors:          append(errImperative, errDeclarativeOnly),
+		},
+		{
+			name:                    "Feature Enabled, takeover enabled, contains DeclarativeOnly -> Returns non mirrored imperative + declarative + DeclarativeOnly",
+			dvFeatureEnabled:        true,
+			containsDeclarativeOnly: true,
+			takeoverEnabled:         true,
+			imperativeErrors:        errImperative,
+			declarativeErrors:       field.ErrorList{errMirroredDeclarative, errDeclarativeOnly},
+			expectedErrors:          field.ErrorList{errImperative[0], errMirroredDeclarative, errDeclarativeOnly},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Set feature gate
+			featuregatetesting.SetFeatureGateDuringTest(t, utilfeature.DefaultFeatureGate, features.DeclarativeValidation, tc.dvFeatureEnabled)
+			featuregatetesting.SetFeatureGateDuringTest(t, utilfeature.DefaultFeatureGate, features.DeclarativeValidationTakeover, tc.takeoverEnabled)
+
+			// Setup scheme for this run
+			localScheme := runtime.NewScheme()
+			localScheme.AddKnownTypes(schema.GroupVersion{Group: "", Version: "v1"}, &v1.Pod{})
+			localScheme.AddValidationFunc(&v1.Pod{}, func(ctx context.Context, op operation.Operation, object, oldObject interface{}) field.ErrorList {
+				return tc.declarativeErrors
+			})
+
+			// Setup context
+			ctx := genericapirequest.WithRequestInfo(context.Background(), &genericapirequest.RequestInfo{
+				APIGroup:   "",
+				APIVersion: "v1",
+				Resource:   "pods",
+			})
+
+			obj := &v1.Pod{
+				TypeMeta:   metav1.TypeMeta{APIVersion: "v1", Kind: "Pod"},
+				ObjectMeta: metav1.ObjectMeta{Name: "test-pod"},
+			}
+
+			// Copy imperative errors because they might be modified/appended to
+			inputErrs := make(field.ErrorList, len(tc.imperativeErrors))
+			copy(inputErrs, tc.imperativeErrors)
+
+			opts := []ValidationConfig{}
+			if tc.containsDeclarativeOnly {
+				opts = append(opts, WithContainsDeclarativelyOnly())
+			}
+
+			gotErrs := ValidateDeclarativelyWithMigrationChecks(ctx, localScheme, obj, nil, inputErrs, operation.Create, opts...)
+
+			if !equalErrorLists(gotErrs, tc.expectedErrors) {
+				t.Errorf("Expected errors: %v, got: %v", tc.expectedErrors, gotErrs)
 			}
 		})
 	}
