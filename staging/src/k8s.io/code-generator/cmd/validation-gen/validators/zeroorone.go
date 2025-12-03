@@ -31,7 +31,7 @@ var zeroOrOneOfVariablePrefix = "zeroOrOneOfMembershipFor"
 var zeroOrOneOfDefinitions = map[string]unions{}
 
 // MarkZeroOrOneOfDeclarative marks the zero-or-one-of union containing the given member as declarative.
-func MarkZeroOrOneOfDeclarative(parentPath string, member *types.Member, fieldName string) {
+func MarkZeroOrOneOfDeclarative(parentPath string, member *types.Member) {
 	us, ok := zeroOrOneOfDefinitions[parentPath]
 	if !ok {
 		return

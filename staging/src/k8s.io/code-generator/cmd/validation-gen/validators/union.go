@@ -62,7 +62,7 @@ func init() {
 // parentPath is the path to the struct.
 // member is the field member (for struct unions).
 // fieldName is the field name (for list unions).
-func MarkUnionDeclarative(parentPath string, member *types.Member, fieldName string) {
+func MarkUnionDeclarative(parentPath string, member *types.Member) {
 	us, ok := unionDefinitions[parentPath]
 	if !ok {
 		return
@@ -73,10 +73,6 @@ func MarkUnionDeclarative(parentPath string, member *types.Member, fieldName str
 			if m == member {
 				u.isDeclarative = true
 			}
-		}
-		// Check list item members
-		if _, ok := u.itemMembers[fieldName]; ok {
-			u.isDeclarative = true
 		}
 	}
 }

@@ -17,10 +17,7 @@ limitations under the License.
 package validators
 
 import (
-	"strings"
-
 	"k8s.io/apimachinery/pkg/util/sets"
-	"k8s.io/apimachinery/pkg/util/validation/field"
 	"k8s.io/gengo/v2/codetags"
 )
 
@@ -47,21 +44,10 @@ func (d *declarativeValidationNative) LateTagValidator() {}
 func (d *declarativeValidationNative) GetValidations(context Context, tag codetags.Tag) (Validations, error) {
 	// Mark union members as declarative if this tag is present.
 	// This requires union processing to have run first, so we implement LateTagValidator.
-	MarkUnionDeclarative(context.ParentPath.String(), context.Member, lastPathElementNative(context.Path))
-	MarkZeroOrOneOfDeclarative(context.ParentPath.String(), context.Member, lastPathElementNative(context.Path))
+	MarkUnionDeclarative(context.ParentPath.String(), context.Member)
+	MarkZeroOrOneOfDeclarative(context.ParentPath.String(), context.Member)
 	// This tag is a marker and does not generate any validations itself.
 	return Validations{}, nil
-}
-
-func lastPathElementNative(path *field.Path) string {
-	if path == nil {
-		return ""
-	}
-	parts := strings.Split(path.String(), ".")
-	if len(parts) > 0 {
-		return parts[len(parts)-1]
-	}
-	return ""
 }
 
 func (d *declarativeValidationNative) Docs() TagDoc {
