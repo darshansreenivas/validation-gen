@@ -282,7 +282,7 @@ func verifyValidationEquivalence(t *testing.T, expectedErrs field.ErrorList, run
 	var imperativeErrs field.ErrorList
 
 	// The errOutputMatcher is used to verify the output matches the expected errors in test cases.
-	errOutputMatcher := field.ErrorMatcher{}.ByType().ByOrigin().ByFieldNormalized(opt.NormalizationRules).ByDeclarativeOnly()
+	errOutputMatcher := field.ErrorMatcher{}.ByType().ByOrigin().ByFieldNormalized(opt.NormalizationRules).ByDeclarativeNative()
 
 	// We only need to test both gate enabled and disabled together, because
 	// 1) the DeclarativeValidationTakeover won't take effect if DeclarativeValidation is disabled.

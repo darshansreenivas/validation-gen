@@ -117,16 +117,6 @@ func validateControllerRef(ref *scheduling.TypedLocalObjectReference, fldPath *f
 
 func validatePodGroup(podGroup *scheduling.PodGroup, fldPath *field.Path, existingPodGroups sets.Set[string]) field.ErrorList {
 	var allErrs field.ErrorList
-	// To match the declarative validation behavior, we return Required for empty string.
-	// Declarative validation treats "" as "missing" via validate.RequiredValue()
-	// and returns early before checking the format constraint.
-	if podGroup.Name == "" {
-		allErrs = append(allErrs, field.Required(fldPath.Child("name"), "").MarkCoveredByDeclarative())
-	} else {
-		for _, detail := range apivalidation.ValidatePodGroupName(podGroup.Name, false) {
-			allErrs = append(allErrs, field.Invalid(fldPath.Child("name"), podGroup.Name, detail).WithOrigin("format=k8s-short-name").MarkCoveredByDeclarative())
-		}
-	}
 	if existingPodGroups.Has(podGroup.Name) {
 		// MarkCoveredByDeclarative is not needed here because the duplicate check is done.
 		allErrs = append(allErrs, field.Duplicate(fldPath, podGroup).MarkCoveredByDeclarative())
@@ -150,10 +140,10 @@ func validatePodGroupPolicy(policy *scheduling.PodGroupPolicy, fldPath *field.Pa
 
 	switch {
 	case len(setFields) == 0:
-		allErrs = append(allErrs, field.Invalid(fldPath, "", "must specify one of: `basic`, `gang`").MarkCoveredByDeclarative())
+		allErrs = append(allErrs, field.Invalid(fldPath, "", "must specify one of: `basic`, `gang`").MarkCoveredByDeclarative().WithOrigin("union"))
 	case len(setFields) > 1:
 		allErrs = append(allErrs, field.Invalid(fldPath, fmt.Sprintf("{%s}", strings.Join(setFields, ", ")),
-			"exactly one of `basic`, `gang` is required, but multiple fields are set").MarkCoveredByDeclarative())
+			"exactly one of `basic`, `gang` is required, but multiple fields are set").MarkCoveredByDeclarative().WithOrigin("union"))
 	case policy.Basic != nil:
 		allErrs = append(allErrs, validatBasicSchedulingPolicy(policy.Basic, fldPath.Child("basic"))...)
 	case policy.Gang != nil:

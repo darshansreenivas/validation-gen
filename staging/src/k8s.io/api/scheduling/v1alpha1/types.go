@@ -169,6 +169,7 @@ type PodGroup struct {
 	// +required
 	// +k8s:required
 	// +k8s:format=k8s-short-name
+	// +k8s:declarativeValidationNative
 	Name string `json:"name" protobuf:"bytes,1,opt,name=name"`
 
 	// Policy defines the scheduling policy for this PodGroup.

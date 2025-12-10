@@ -86,7 +86,7 @@ func testDeclarativeValidate(t *testing.T, apiVersion string) {
 				obj.Spec.PodGroups[0].Name = ""
 			}),
 			expectedErrs: field.ErrorList{
-				field.Required(field.NewPath("spec", "podGroups").Index(0).Child("name"), ""),
+				field.Required(field.NewPath("spec", "podGroups").Index(0).Child("name"), "").MarkDeclarativeNative(),
 			},
 		},
 		"invalid podGroup name": {
@@ -94,7 +94,7 @@ func testDeclarativeValidate(t *testing.T, apiVersion string) {
 				obj.Spec.PodGroups[0].Name = "Invalid_Name"
 			}),
 			expectedErrs: field.ErrorList{
-				field.Invalid(field.NewPath("spec", "podGroups").Index(0).Child("name"), "Invalid_Name", "").WithOrigin("format=k8s-short-name"),
+				field.Invalid(field.NewPath("spec", "podGroups").Index(0).Child("name"), "Invalid_Name", "").WithOrigin("format=k8s-short-name").MarkDeclarativeNative(),
 			},
 		},
 		"duplicate podGroup names": {
@@ -244,7 +244,7 @@ func testDeclarativeValidate(t *testing.T, apiVersion string) {
 				obj.Spec.PodGroups[0].Policy = scheduling.PodGroupPolicy{}
 			}),
 			expectedErrs: field.ErrorList{
-				field.Invalid(field.NewPath("spec", "podGroups").Index(0).Child("policy"), "", "must specify one of: `basic`, `gang`"),
+				field.Invalid(field.NewPath("spec", "podGroups").Index(0).Child("policy"), "", "must specify one of: `basic`, `gang`").WithOrigin("union"),
 			},
 		},
 		"policy with both basic and gang": {
@@ -257,7 +257,7 @@ func testDeclarativeValidate(t *testing.T, apiVersion string) {
 				}
 			}),
 			expectedErrs: field.ErrorList{
-				field.Invalid(field.NewPath("spec", "podGroups").Index(0).Child("policy"), "{`basic`, `gang`}", "exactly one of `basic`, `gang` is required, but multiple fields are set"),
+				field.Invalid(field.NewPath("spec", "podGroups").Index(0).Child("policy"), "{`basic`, `gang`}", "exactly one of `basic`, `gang` is required, but multiple fields are set").WithOrigin("union"),
 			},
 		},
 		"valid with basic policy": {
@@ -389,7 +389,7 @@ func testDeclarativeValidateUpdate(t *testing.T, apiVersion string) {
 				obj.Spec.PodGroups[0].Policy = scheduling.PodGroupPolicy{}
 			}),
 			expectedErrs: field.ErrorList{
-				field.Invalid(field.NewPath("spec", "podGroups").Index(0).Child("policy"), "", "must specify one of: `basic`, `gang`"),
+				field.Invalid(field.NewPath("spec", "podGroups").Index(0).Child("policy"), "", "must specify one of: `basic`, `gang`").WithOrigin("union"),
 				field.Invalid(field.NewPath("spec", "podGroups"), nil, "field is immutable"),
 			},
 		},
@@ -405,7 +405,7 @@ func testDeclarativeValidateUpdate(t *testing.T, apiVersion string) {
 				}
 			}),
 			expectedErrs: field.ErrorList{
-				field.Invalid(field.NewPath("spec", "podGroups").Index(0).Child("policy"), "{`basic`, `gang`}", "exactly one of `basic`, `gang` is required, but multiple fields are set"),
+				field.Invalid(field.NewPath("spec", "podGroups").Index(0).Child("policy"), "{`basic`, `gang`}", "exactly one of `basic`, `gang` is required, but multiple fields are set").WithOrigin("union"),
 				field.Invalid(field.NewPath("spec", "podGroups"), nil, "field is immutable"),
 			},
 		},
