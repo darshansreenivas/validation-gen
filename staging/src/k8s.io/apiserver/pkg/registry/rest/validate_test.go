@@ -844,6 +844,7 @@ func TestValidateDeclarativelyWithMigrationChecks(t *testing.T) {
 		imperativeErrors        field.ErrorList
 		declarativeErrors       field.ErrorList
 		expectedErrors          field.ErrorList
+		shouldPanic             bool
 	}{
 		{
 			name:              "Feature Disabled, Not DeclarativeOnly -> Skips declarative",
@@ -882,6 +883,22 @@ func TestValidateDeclarativelyWithMigrationChecks(t *testing.T) {
 			declarativeErrors:       field.ErrorList{errMirroredDeclarative, errDeclarativeOnly},
 			expectedErrors:          field.ErrorList{errImperative[0], errMirroredDeclarative, errDeclarativeOnly},
 		},
+		{
+			name:                    "Feature Disabled, contains DeclarativeOnly, Panics -> Returns InternalError",
+			containsDeclarativeOnly: true,
+			imperativeErrors:        errImperative,
+			shouldPanic:             true,
+			expectedErrors:          append(errImperative, field.InternalError(nil, fmt.Errorf("panic during declarative validation: test panic"))),
+		},
+		{
+			name:                    "Feature Enabled, takeover enabled, contains DeclarativeOnly, InternalError -> Returns non mirrored imperative + InternalError",
+			dvFeatureEnabled:        true,
+			containsDeclarativeOnly: true,
+			takeoverEnabled:         true,
+			imperativeErrors:        errImperative,
+			declarativeErrors:       field.ErrorList{field.InternalError(nil, fmt.Errorf("internal error"))},
+			expectedErrors:          field.ErrorList{errImperative[0], field.InternalError(nil, fmt.Errorf("internal error")), field.InternalError(nil, fmt.Errorf("internal error"))},
+		},
 	}
 
 	for _, tc := range testCases {
@@ -894,6 +911,9 @@ func TestValidateDeclarativelyWithMigrationChecks(t *testing.T) {
 			localScheme := runtime.NewScheme()
 			localScheme.AddKnownTypes(schema.GroupVersion{Group: "", Version: "v1"}, &v1.Pod{})
 			localScheme.AddValidationFunc(&v1.Pod{}, func(ctx context.Context, op operation.Operation, object, oldObject interface{}) field.ErrorList {
+				if tc.shouldPanic {
+					panic("test panic")
+				}
 				return tc.declarativeErrors
 			})
 
