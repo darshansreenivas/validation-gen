@@ -39,7 +39,7 @@ func TestZeroOrOneOfValidation(t *testing.T) {
 				Field2: intPtr(2),
 			},
 			errs: field.ErrorList{
-				field.Invalid(nil, map[string]interface{}{"field1": int(1), "field2": int(2)}, "must specify at most one of: `field1`, `field2`").MarkDeclarativeOnly(),
+				field.Invalid(nil, map[string]interface{}{"field1": int(1), "field2": int(2)}, "must specify at most one of: `field1`, `field2`").MarkDeclarativeNative(),
 			},
 		},
 		{
@@ -67,7 +67,7 @@ func TestZeroOrOneOfValidation(t *testing.T) {
 				},
 			},
 			errs: field.ErrorList{
-				field.Invalid(field.NewPath("items"), []UnionItem{{Type: "a", A: intPtr(1)}, {Type: "b", B: intPtr(2)}}, "must specify at most one of: `items[{\"type\": \"a\"}]`, `items[{\"type\": \"b\"}]`").MarkDeclarativeOnly(),
+				field.Invalid(field.NewPath("items"), []UnionItem{{Type: "a", A: intPtr(1)}, {Type: "b", B: intPtr(2)}}, "must specify at most one of: `items[{\"type\": \"a\"}]`, `items[{\"type\": \"b\"}]`").MarkDeclarativeNative(),
 			},
 		},
 		{
@@ -99,7 +99,7 @@ func TestZeroOrOneOfValidation(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			st := localSchemeBuilder.Test(t)
-			st.Value(tc.obj).ExpectMatches(field.ErrorMatcher{}.ByType().ByField().ByDeclarativeOnly(), tc.errs)
+			st.Value(tc.obj).ExpectMatches(field.ErrorMatcher{}.ByType().ByField().ByDeclarativeNative(), tc.errs)
 		})
 	}
 }

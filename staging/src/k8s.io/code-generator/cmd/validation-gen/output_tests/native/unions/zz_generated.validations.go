@@ -67,9 +67,9 @@ func Validate_ListStruct(ctx context.Context, op operation.Operation, fldPath *f
 	// field ListStruct.Items
 	errs = append(errs,
 		func(fldPath *field.Path, obj, oldObj []UnionItem, oldValueCorrelated bool) (errs field.ErrorList) {
-			// this field validations are marked declarative only
+			// this field validations are marked declarative native
 			defer func() {
-				errs = errs.MarkDeclarativeOnly()
+				errs = errs.MarkDeclarativeNative()
 			}()
 			// don't revalidate unchanged data
 			if oldValueCorrelated && op.Type == operation.Update && equality.Semantic.DeepEqual(obj, oldObj) {
@@ -114,16 +114,16 @@ func Validate_Struct(ctx context.Context, op operation.Operation, fldPath *field
 			return false
 		}
 		return obj.UnionField2 != nil
-	}).MarkDeclarativeOnly()...)
+	}).MarkDeclarativeNative()...)
 
 	// field Struct.TypeMeta has no validation
 
 	// field Struct.UnionField1
 	errs = append(errs,
 		func(fldPath *field.Path, obj, oldObj *int, oldValueCorrelated bool) (errs field.ErrorList) {
-			// this field validations are marked declarative only
+			// this field validations are marked declarative native
 			defer func() {
-				errs = errs.MarkDeclarativeOnly()
+				errs = errs.MarkDeclarativeNative()
 			}()
 			// don't revalidate unchanged data
 			if oldValueCorrelated && op.Type == operation.Update && (obj == oldObj || (obj != nil && oldObj != nil && *obj == *oldObj)) {
@@ -143,9 +143,9 @@ func Validate_Struct(ctx context.Context, op operation.Operation, fldPath *field
 	// field Struct.UnionField2
 	errs = append(errs,
 		func(fldPath *field.Path, obj, oldObj *int, oldValueCorrelated bool) (errs field.ErrorList) {
-			// this field validations are marked declarative only
+			// this field validations are marked declarative native
 			defer func() {
-				errs = errs.MarkDeclarativeOnly()
+				errs = errs.MarkDeclarativeNative()
 			}()
 			// don't revalidate unchanged data
 			if oldValueCorrelated && op.Type == operation.Update && (obj == oldObj || (obj != nil && oldObj != nil && *obj == *oldObj)) {

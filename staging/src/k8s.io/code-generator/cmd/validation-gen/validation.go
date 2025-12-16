@@ -216,7 +216,7 @@ type childNode struct {
 	node      *typeNode   // the node of the child's value type, or nil if it is in a foreign package
 
 	fieldValidations validators.Validations // validations on the field
-	// declarativeNative is true if the field only has declarative validations,
+	// declarativeNative is true if the field has declarative native validations,
 	// false if the field is being migrated and also has equivalent handwritten validation
 	declarativeNative bool
 
@@ -1260,9 +1260,9 @@ func (g *genValidations) emitValidationForChild(c *generator.Context, thisChild 
 				sw.Do("errs = append(errs,\n", targs)
 				sw.Do("  func(fldPath *$.field.Path|raw$, obj, oldObj $.fieldTypePfx$$.fieldType|raw$, oldValueCorrelated bool) (errs $.field.ErrorList|raw$) {\n", targs)
 				if fld.declarativeNative {
-					sw.Do("// this field validations are marked declarative only\n", nil)
+					sw.Do("// this field validations are marked declarative native\n", nil)
 					sw.Do("defer func() {\n", nil)
-					sw.Do("    errs = errs.MarkDeclarativeOnly()\n", nil)
+					sw.Do("    errs = errs.MarkDeclarativeNative()\n", nil)
 					sw.Do("}()\n", nil)
 				}
 				if err := sw.Merge(buf, bufsw); err != nil {
@@ -1394,7 +1394,7 @@ func emitCallsToValidators(c *generator.Context, validations []validators.Functi
 		for i, v := range validations {
 			isShortCircuit := v.Flags.IsSet(validators.ShortCircuit)
 			isNonError := v.Flags.IsSet(validators.NonError)
-			isDeclarativeOnly := v.Flags.IsSet(validators.DeclarativeOnly)
+			isDeclarativeNative := v.Flags.IsSet(validators.DeclarativeNative)
 
 			targs := generator.Args{
 				"funcName": c.Universe.Type(v.Function),
@@ -1474,8 +1474,8 @@ func emitCallsToValidators(c *generator.Context, validations []validators.Functi
 				} else {
 					sw.Do("errs = append(errs, ", nil)
 					emitCall()
-					if isDeclarativeOnly {
-						sw.Do(".MarkDeclarativeOnly()", nil)
+					if isDeclarativeNative {
+						sw.Do(".MarkDeclarativeNative()", nil)
 					}
 					sw.Do("...)\n", nil)
 				}

@@ -57,9 +57,9 @@ func Validate_MyObject(ctx context.Context, op operation.Operation, fldPath *fie
 	// field MyObject.UUIDField
 	errs = append(errs,
 		func(fldPath *field.Path, obj, oldObj *string, oldValueCorrelated bool) (errs field.ErrorList) {
-			// this field validations are marked declarative only
+			// this field validations are marked declarative native
 			defer func() {
-				errs = errs.MarkDeclarativeOnly()
+				errs = errs.MarkDeclarativeNative()
 			}()
 			// don't revalidate unchanged data
 			if oldValueCorrelated && op.Type == operation.Update && (obj == oldObj || (obj != nil && oldObj != nil && *obj == *oldObj)) {
@@ -99,9 +99,9 @@ func Validate_MyObject(ctx context.Context, op operation.Operation, fldPath *fie
 	// field MyObject.UUIDPtrField
 	errs = append(errs,
 		func(fldPath *field.Path, obj, oldObj *string, oldValueCorrelated bool) (errs field.ErrorList) {
-			// this field validations are marked declarative only
+			// this field validations are marked declarative native
 			defer func() {
-				errs = errs.MarkDeclarativeOnly()
+				errs = errs.MarkDeclarativeNative()
 			}()
 			// don't revalidate unchanged data
 			if oldValueCorrelated && op.Type == operation.Update && (obj == oldObj || (obj != nil && oldObj != nil && *obj == *oldObj)) {
@@ -141,9 +141,9 @@ func Validate_MyObject(ctx context.Context, op operation.Operation, fldPath *fie
 	// field MyObject.UUIDTypedefField
 	errs = append(errs,
 		func(fldPath *field.Path, obj, oldObj *UUIDString, oldValueCorrelated bool) (errs field.ErrorList) {
-			// this field validations are marked declarative only
+			// this field validations are marked declarative native
 			defer func() {
-				errs = errs.MarkDeclarativeOnly()
+				errs = errs.MarkDeclarativeNative()
 			}()
 			// don't revalidate unchanged data
 			if oldValueCorrelated && op.Type == operation.Update && (obj == oldObj || (obj != nil && oldObj != nil && *obj == *oldObj)) {
@@ -169,9 +169,9 @@ func Validate_MyObject(ctx context.Context, op operation.Operation, fldPath *fie
 	// field MyObject.FieldForLength
 	errs = append(errs,
 		func(fldPath *field.Path, obj, oldObj *string, oldValueCorrelated bool) (errs field.ErrorList) {
-			// this field validations are marked declarative only
+			// this field validations are marked declarative native
 			defer func() {
-				errs = errs.MarkDeclarativeOnly()
+				errs = errs.MarkDeclarativeNative()
 			}()
 			// don't revalidate unchanged data
 			if oldValueCorrelated && op.Type == operation.Update && (obj == oldObj || (obj != nil && oldObj != nil && *obj == *oldObj)) {
@@ -205,9 +205,9 @@ func Validate_MyObject(ctx context.Context, op operation.Operation, fldPath *fie
 	// field MyObject.StableTypeField
 	errs = append(errs,
 		func(fldPath *field.Path, obj, oldObj *StableType, oldValueCorrelated bool) (errs field.ErrorList) {
-			// this field validations are marked declarative only
+			// this field validations are marked declarative native
 			defer func() {
-				errs = errs.MarkDeclarativeOnly()
+				errs = errs.MarkDeclarativeNative()
 			}()
 			// don't revalidate unchanged data
 			if oldValueCorrelated && op.Type == operation.Update && (obj == oldObj || (obj != nil && oldObj != nil && *obj == *oldObj)) {
@@ -233,9 +233,9 @@ func Validate_MyObject(ctx context.Context, op operation.Operation, fldPath *fie
 	// field MyObject.StableTypeFieldPointer
 	errs = append(errs,
 		func(fldPath *field.Path, obj, oldObj *StableType, oldValueCorrelated bool) (errs field.ErrorList) {
-			// this field validations are marked declarative only
+			// this field validations are marked declarative native
 			defer func() {
-				errs = errs.MarkDeclarativeOnly()
+				errs = errs.MarkDeclarativeNative()
 			}()
 			// don't revalidate unchanged data
 			if oldValueCorrelated && op.Type == operation.Update && (obj == oldObj || (obj != nil && oldObj != nil && *obj == *oldObj)) {
@@ -261,9 +261,9 @@ func Validate_MyObject(ctx context.Context, op operation.Operation, fldPath *fie
 	// field MyObject.StableTypeSlice
 	errs = append(errs,
 		func(fldPath *field.Path, obj, oldObj []StableType, oldValueCorrelated bool) (errs field.ErrorList) {
-			// this field validations are marked declarative only
+			// this field validations are marked declarative native
 			defer func() {
-				errs = errs.MarkDeclarativeOnly()
+				errs = errs.MarkDeclarativeNative()
 			}()
 			// don't revalidate unchanged data
 			if oldValueCorrelated && op.Type == operation.Update && equality.Semantic.DeepEqual(obj, oldObj) {
@@ -307,9 +307,9 @@ func Validate_MyObject(ctx context.Context, op operation.Operation, fldPath *fie
 	// field MyObject.SetList
 	errs = append(errs,
 		func(fldPath *field.Path, obj, oldObj []string, oldValueCorrelated bool) (errs field.ErrorList) {
-			// this field validations are marked declarative only
+			// this field validations are marked declarative native
 			defer func() {
-				errs = errs.MarkDeclarativeOnly()
+				errs = errs.MarkDeclarativeNative()
 			}()
 			// don't revalidate unchanged data
 			if oldValueCorrelated && op.Type == operation.Update && equality.Semantic.DeepEqual(obj, oldObj) {
@@ -337,9 +337,9 @@ func Validate_MyObject(ctx context.Context, op operation.Operation, fldPath *fie
 	// field MyObject.NestedStable
 	errs = append(errs,
 		func(fldPath *field.Path, obj, oldObj *NestedStableType, oldValueCorrelated bool) (errs field.ErrorList) {
-			// this field validations are marked declarative only
+			// this field validations are marked declarative native
 			defer func() {
-				errs = errs.MarkDeclarativeOnly()
+				errs = errs.MarkDeclarativeNative()
 			}()
 			// don't revalidate unchanged data
 			if oldValueCorrelated && op.Type == operation.Update && (obj == oldObj || (obj != nil && oldObj != nil && *obj == *oldObj)) {
@@ -365,9 +365,9 @@ func Validate_MyObject(ctx context.Context, op operation.Operation, fldPath *fie
 	// field MyObject.SubfieldTest
 	errs = append(errs,
 		func(fldPath *field.Path, obj, oldObj *StableType, oldValueCorrelated bool) (errs field.ErrorList) {
-			// this field validations are marked declarative only
+			// this field validations are marked declarative native
 			defer func() {
-				errs = errs.MarkDeclarativeOnly()
+				errs = errs.MarkDeclarativeNative()
 			}()
 			// don't revalidate unchanged data
 			if oldValueCorrelated && op.Type == operation.Update && (obj == oldObj || (obj != nil && oldObj != nil && *obj == *oldObj)) {
@@ -405,9 +405,9 @@ func Validate_MyObject(ctx context.Context, op operation.Operation, fldPath *fie
 	// field MyObject.IPAddress
 	errs = append(errs,
 		func(fldPath *field.Path, obj, oldObj *string, oldValueCorrelated bool) (errs field.ErrorList) {
-			// this field validations are marked declarative only
+			// this field validations are marked declarative native
 			defer func() {
-				errs = errs.MarkDeclarativeOnly()
+				errs = errs.MarkDeclarativeNative()
 			}()
 			// don't revalidate unchanged data
 			if oldValueCorrelated && op.Type == operation.Update && (obj == oldObj || (obj != nil && oldObj != nil && *obj == *oldObj)) {
@@ -453,9 +453,9 @@ func Validate_NestedStableType(ctx context.Context, op operation.Operation, fldP
 	// field NestedStableType.NestedField
 	errs = append(errs,
 		func(fldPath *field.Path, obj, oldObj *StableType, oldValueCorrelated bool) (errs field.ErrorList) {
-			// this field validations are marked declarative only
+			// this field validations are marked declarative native
 			defer func() {
-				errs = errs.MarkDeclarativeOnly()
+				errs = errs.MarkDeclarativeNative()
 			}()
 			// don't revalidate unchanged data
 			if oldValueCorrelated && op.Type == operation.Update && (obj == oldObj || (obj != nil && oldObj != nil && *obj == *oldObj)) {

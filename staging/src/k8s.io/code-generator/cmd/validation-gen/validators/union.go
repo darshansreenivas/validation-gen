@@ -328,7 +328,7 @@ func processUnionValidations(context Context, unions unions, varPrefix string,
 				extraArgs := append([]any{supportVarName, discriminatorExtractor}, extractorArgs...)
 				fn := Function(tagName, DefaultFlags, discriminatedValidator, extraArgs...)
 				if u.isDeclarative {
-					fn.Flags |= DeclarativeOnly
+					fn.Flags |= DeclarativeNative
 				}
 				result.Functions = append(result.Functions, fn)
 			} else {
@@ -338,7 +338,7 @@ func processUnionValidations(context Context, unions unions, varPrefix string,
 				extraArgs := append([]any{supportVarName}, extractorArgs...)
 				fn := Function(tagName, DefaultFlags, undiscriminatedValidator, extraArgs...)
 				if u.isDeclarative {
-					fn.Flags |= DeclarativeOnly
+					fn.Flags |= DeclarativeNative
 				}
 				result.Functions = append(result.Functions, fn)
 			}

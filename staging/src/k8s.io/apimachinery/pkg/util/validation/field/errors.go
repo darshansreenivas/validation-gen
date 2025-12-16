@@ -56,10 +56,9 @@ type Error struct {
 	// that should also be caught by declarative validation.
 	CoveredByDeclarative bool
 
-	// DeclarativeOnly is true when this error is coming from the native
-	// declarative validations. This field is used to filer out the
-	// errors coming from declarative only validations.
-	DeclarativeOnly bool
+	// DeclarativeNative is true when this error originates from a declarative-native validation.
+	// This field is used to distinguish errors that are exclusively declarative and lack an imperative counterpart.
+	DeclarativeNative bool
 }
 
 var _ error = &Error{}
@@ -451,16 +450,16 @@ func (list ErrorList) ExtractCoveredByDeclarative() ErrorList {
 	return newList
 }
 
-// MarkDeclarativeOnly marks the error as coming from declarative only validation.
-func (e *Error) MarkDeclarativeOnly() *Error {
-	e.DeclarativeOnly = true
+// MarkDeclarativeNative marks the error as originating from a declarative-native validation.
+func (e *Error) MarkDeclarativeNative() *Error {
+	e.DeclarativeNative = true
 	return e
 }
 
-// MarkDeclarativeOnly marks all errors in the list as coming from declarative only validation.
-func (list ErrorList) MarkDeclarativeOnly() ErrorList {
+// MarkDeclarativeNative marks all errors in the list as originating from declarative-native validations.
+func (list ErrorList) MarkDeclarativeNative() ErrorList {
 	for _, err := range list {
-		err.DeclarativeOnly = true
+		err.DeclarativeNative = true
 	}
 	return list
 }

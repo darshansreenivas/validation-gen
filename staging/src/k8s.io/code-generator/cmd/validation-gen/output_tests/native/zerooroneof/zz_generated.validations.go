@@ -67,9 +67,9 @@ func Validate_ZeroOrOneOfListStruct(ctx context.Context, op operation.Operation,
 	// field ZeroOrOneOfListStruct.Items
 	errs = append(errs,
 		func(fldPath *field.Path, obj, oldObj []UnionItem, oldValueCorrelated bool) (errs field.ErrorList) {
-			// this field validations are marked declarative only
+			// this field validations are marked declarative native
 			defer func() {
-				errs = errs.MarkDeclarativeOnly()
+				errs = errs.MarkDeclarativeNative()
 			}()
 			// don't revalidate unchanged data
 			if oldValueCorrelated && op.Type == operation.Update && equality.Semantic.DeepEqual(obj, oldObj) {
@@ -114,16 +114,16 @@ func Validate_ZeroOrOneOfStruct(ctx context.Context, op operation.Operation, fld
 			return false
 		}
 		return obj.Field2 != nil
-	}).MarkDeclarativeOnly()...)
+	}).MarkDeclarativeNative()...)
 
 	// field ZeroOrOneOfStruct.TypeMeta has no validation
 
 	// field ZeroOrOneOfStruct.Field1
 	errs = append(errs,
 		func(fldPath *field.Path, obj, oldObj *int, oldValueCorrelated bool) (errs field.ErrorList) {
-			// this field validations are marked declarative only
+			// this field validations are marked declarative native
 			defer func() {
-				errs = errs.MarkDeclarativeOnly()
+				errs = errs.MarkDeclarativeNative()
 			}()
 			// don't revalidate unchanged data
 			if oldValueCorrelated && op.Type == operation.Update && (obj == oldObj || (obj != nil && oldObj != nil && *obj == *oldObj)) {
@@ -143,9 +143,9 @@ func Validate_ZeroOrOneOfStruct(ctx context.Context, op operation.Operation, fld
 	// field ZeroOrOneOfStruct.Field2
 	errs = append(errs,
 		func(fldPath *field.Path, obj, oldObj *int, oldValueCorrelated bool) (errs field.ErrorList) {
-			// this field validations are marked declarative only
+			// this field validations are marked declarative native
 			defer func() {
-				errs = errs.MarkDeclarativeOnly()
+				errs = errs.MarkDeclarativeNative()
 			}()
 			// don't revalidate unchanged data
 			if oldValueCorrelated && op.Type == operation.Update && (obj == oldObj || (obj != nil && oldObj != nil && *obj == *oldObj)) {

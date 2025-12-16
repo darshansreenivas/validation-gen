@@ -451,9 +451,9 @@ const (
 	// path (e.g. early return when combined with ShortCircuit).
 	NonError
 
-	// DeclarativeOnly indicates that the validation function returns an error
-	// list which should be marked as declarative-only.
-	DeclarativeOnly
+	// DeclarativeNative indicates that the validation function returns an error
+	// list which should be marked as declarative-native.
+	DeclarativeNative
 )
 
 // Conditions defines what conditions must be true for a resource to be validated.

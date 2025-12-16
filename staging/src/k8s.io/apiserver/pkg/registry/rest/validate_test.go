@@ -834,70 +834,70 @@ func TestValidateDeclarativelyWithMigrationChecks(t *testing.T) {
 		field.Forbidden(field.NewPath("spec", "restartPolicy"), "imperative error covered by declarative").MarkCoveredByDeclarative(),
 	}
 	errMirroredDeclarative := field.Invalid(field.NewPath("spec", "restartPolicy"), "dec", "declarative error")
-	errDeclarativeOnly := field.Invalid(field.NewPath("spec", "replicas"), "decOnly", "declarative only error").MarkDeclarativeOnly()
+	errDeclarativeNative := field.Invalid(field.NewPath("spec", "replicas"), "decOnly", "declarative native error").MarkDeclarativeNative()
 
 	testCases := []struct {
-		name                    string
-		dvFeatureEnabled        bool
-		takeoverEnabled         bool
-		containsDeclarativeOnly bool
-		imperativeErrors        field.ErrorList
-		declarativeErrors       field.ErrorList
-		expectedErrors          field.ErrorList
-		shouldPanic             bool
+		name                      string
+		dvFeatureEnabled          bool
+		takeoverEnabled           bool
+		containsDeclarativeNative bool
+		imperativeErrors          field.ErrorList
+		declarativeErrors         field.ErrorList
+		expectedErrors            field.ErrorList
+		shouldPanic               bool
 	}{
 		{
-			name:              "Feature Disabled, Not DeclarativeOnly -> Skips declarative",
+			name:              "Feature Disabled, Not DeclarativeNative -> Skips declarative",
 			imperativeErrors:  errImperative,
 			declarativeErrors: field.ErrorList{errMirroredDeclarative},
 			expectedErrors:    errImperative,
 		},
 		{
-			name:                    "Feature Disabled, contains DeclarativeOnly -> Returns DeclarativeOnly errors, ignores regular declarative errors",
-			containsDeclarativeOnly: true,
-			imperativeErrors:        errImperative,
-			declarativeErrors:       field.ErrorList{errMirroredDeclarative, errDeclarativeOnly},
-			expectedErrors:          append(errImperative, errDeclarativeOnly),
+			name:                      "Feature Disabled, contains DeclarativeNative -> Returns DeclarativeNative errors, ignores regular declarative errors",
+			containsDeclarativeNative: true,
+			imperativeErrors:          errImperative,
+			declarativeErrors:         field.ErrorList{errMirroredDeclarative, errDeclarativeNative},
+			expectedErrors:            append(errImperative, errDeclarativeNative),
 		},
 		{
-			name:              "Feature Enabled, Not DeclarativeOnly -> Returns imperative (no takeover)",
+			name:              "Feature Enabled, Not DeclarativeNative -> Returns imperative (no takeover)",
 			dvFeatureEnabled:  true,
 			imperativeErrors:  errImperative,
 			declarativeErrors: field.ErrorList{errMirroredDeclarative},
 			expectedErrors:    errImperative,
 		},
 		{
-			name:                    "Feature Enabled, contains DeclarativeOnly -> Returns imperative + DeclarativeOnly",
-			dvFeatureEnabled:        true,
-			containsDeclarativeOnly: true,
-			imperativeErrors:        errImperative,
-			declarativeErrors:       field.ErrorList{errMirroredDeclarative, errDeclarativeOnly},
-			expectedErrors:          append(errImperative, errDeclarativeOnly),
+			name:                      "Feature Enabled, contains DeclarativeNative -> Returns imperative + DeclarativeNative",
+			dvFeatureEnabled:          true,
+			containsDeclarativeNative: true,
+			imperativeErrors:          errImperative,
+			declarativeErrors:         field.ErrorList{errMirroredDeclarative, errDeclarativeNative},
+			expectedErrors:            append(errImperative, errDeclarativeNative),
 		},
 		{
-			name:                    "Feature Enabled, takeover enabled, contains DeclarativeOnly -> Returns non mirrored imperative + declarative + DeclarativeOnly",
-			dvFeatureEnabled:        true,
-			containsDeclarativeOnly: true,
-			takeoverEnabled:         true,
-			imperativeErrors:        errImperative,
-			declarativeErrors:       field.ErrorList{errMirroredDeclarative, errDeclarativeOnly},
-			expectedErrors:          field.ErrorList{errImperative[0], errMirroredDeclarative, errDeclarativeOnly},
+			name:                      "Feature Enabled, takeover enabled, contains DeclarativeNative -> Returns non mirrored imperative + declarative + DeclarativeNative",
+			dvFeatureEnabled:          true,
+			containsDeclarativeNative: true,
+			takeoverEnabled:           true,
+			imperativeErrors:          errImperative,
+			declarativeErrors:         field.ErrorList{errMirroredDeclarative, errDeclarativeNative},
+			expectedErrors:            field.ErrorList{errImperative[0], errMirroredDeclarative, errDeclarativeNative},
 		},
 		{
-			name:                    "Feature Disabled, contains DeclarativeOnly, Panics -> Returns InternalError",
-			containsDeclarativeOnly: true,
-			imperativeErrors:        errImperative,
-			shouldPanic:             true,
-			expectedErrors:          append(errImperative, field.InternalError(nil, fmt.Errorf("panic during declarative validation: test panic"))),
+			name:                      "Feature Disabled, contains DeclarativeNative, Panics -> Returns InternalError",
+			containsDeclarativeNative: true,
+			imperativeErrors:          errImperative,
+			shouldPanic:               true,
+			expectedErrors:            append(errImperative, field.InternalError(nil, fmt.Errorf("panic during declarative validation: test panic"))),
 		},
 		{
-			name:                    "Feature Enabled, takeover enabled, contains DeclarativeOnly, InternalError -> Returns non mirrored imperative + InternalError",
-			dvFeatureEnabled:        true,
-			containsDeclarativeOnly: true,
-			takeoverEnabled:         true,
-			imperativeErrors:        errImperative,
-			declarativeErrors:       field.ErrorList{field.InternalError(nil, fmt.Errorf("internal error"))},
-			expectedErrors:          field.ErrorList{errImperative[0], field.InternalError(nil, fmt.Errorf("internal error")), field.InternalError(nil, fmt.Errorf("internal error"))},
+			name:                      "Feature Enabled, takeover enabled, contains DeclarativeNative, InternalError -> Returns non mirrored imperative + InternalError",
+			dvFeatureEnabled:          true,
+			containsDeclarativeNative: true,
+			takeoverEnabled:           true,
+			imperativeErrors:          errImperative,
+			declarativeErrors:         field.ErrorList{field.InternalError(nil, fmt.Errorf("internal error"))},
+			expectedErrors:            field.ErrorList{errImperative[0], field.InternalError(nil, fmt.Errorf("internal error")), field.InternalError(nil, fmt.Errorf("internal error"))},
 		},
 	}
 
@@ -934,8 +934,8 @@ func TestValidateDeclarativelyWithMigrationChecks(t *testing.T) {
 			copy(inputErrs, tc.imperativeErrors)
 
 			opts := []ValidationConfig{}
-			if tc.containsDeclarativeOnly {
-				opts = append(opts, WithContainsDeclarativelyOnly())
+			if tc.containsDeclarativeNative {
+				opts = append(opts, WithDeclarativeNative())
 			}
 
 			gotErrs := ValidateDeclarativelyWithMigrationChecks(ctx, localScheme, obj, nil, inputErrs, operation.Create, opts...)

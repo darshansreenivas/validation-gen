@@ -36,7 +36,7 @@ func TestUnionValidation(t *testing.T) {
 			name: "struct - union fails",
 			obj:  &Struct{},
 			errs: field.ErrorList{
-				field.Invalid(nil, "", "must specify one of: `unionField1`, `unionField2`").MarkDeclarativeOnly(),
+				field.Invalid(nil, "", "must specify one of: `unionField1`, `unionField2`").MarkDeclarativeNative(),
 			},
 		},
 		{
@@ -60,7 +60,7 @@ func TestUnionValidation(t *testing.T) {
 				},
 			},
 			errs: field.ErrorList{
-				field.Invalid(field.NewPath("items"), []UnionItem{{Type: "a", A: intPtr(1)}, {Type: "b", B: intPtr(2)}}, "must specify one of: `items[{\"type\": \"a\"}]`, `items[{\"type\": \"b\"}]`").MarkDeclarativeOnly(),
+				field.Invalid(field.NewPath("items"), []UnionItem{{Type: "a", A: intPtr(1)}, {Type: "b", B: intPtr(2)}}, "must specify one of: `items[{\"type\": \"a\"}]`, `items[{\"type\": \"b\"}]`").MarkDeclarativeNative(),
 			},
 		},
 		{
@@ -87,7 +87,7 @@ func TestUnionValidation(t *testing.T) {
 				},
 			},
 			errs: field.ErrorList{
-				field.Invalid(field.NewPath("items"), []UnionItem{{Type: "c"}}, "must specify one of: `items[{\"type\": \"a\"}]`, `items[{\"type\": \"b\"}]`").MarkDeclarativeOnly(),
+				field.Invalid(field.NewPath("items"), []UnionItem{{Type: "c"}}, "must specify one of: `items[{\"type\": \"a\"}]`, `items[{\"type\": \"b\"}]`").MarkDeclarativeNative(),
 			},
 		},
 	}
@@ -95,7 +95,7 @@ func TestUnionValidation(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			st := localSchemeBuilder.Test(t)
-			st.Value(tc.obj).ExpectMatches(field.ErrorMatcher{}.ByType().ByField().ByDeclarativeOnly(), tc.errs)
+			st.Value(tc.obj).ExpectMatches(field.ErrorMatcher{}.ByType().ByField().ByDeclarativeNative(), tc.errs)
 		})
 	}
 }
