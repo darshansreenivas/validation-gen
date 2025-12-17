@@ -36,7 +36,9 @@ To add a new validation tag (e.g., `+k8s:newRule`), follow this workflow:
 
 ### 2. Migrating Handwritten Validation to Declarative Validation
 
-To migrate existing imperative validation to the new declarative system:
+> **Detailed Guide**: For a comprehensive, step-by-step walkthrough, common pitfalls (like short-circuiting), and advanced patterns, please read the **[Migration Guide](MIGRATION_GUIDE.md)**.
+
+Below is a short summary for how to migrate existing imperative validation to the new declarative system, you should consult the comprehensive guide above for more specific and detailed guidance:
 
 1.  **Enable Code Generation**: In the `doc.go` of the API version (e.g., `pkg/apis/<group>/<version>/doc.go`), add the necessary tags:
     ```go
