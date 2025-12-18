@@ -207,7 +207,7 @@ The error matcher applies the regex to the Declarative Validation error paths. I
         allErrs = append(allErrs, field.Required(...))
     }
     ```
-4. For fields that have parent field in the field path (spec.foo.bar.baz), for each parent you MUST ADD any short-circuit tags.  These include: +k8s:optional, +k8s:required, and +k8s:immutable/+k8s:updated
+4. For fields that have additional parent fields in the field path (spec.foo.bar.baz), for each parent you MUST ADD any short-circuit validation tags associated with the hand-written validation for the parent.  These include: +k8s:optional, +k8s:required, and +k8s:immutable/+k8s:update. This involves going through the hand-written validation.go logic for the parent fields and seeing if they have logic related to the list of short-circuit validation tags above (eg: is field foo required?  is it immutable?  if so need to add +k8s: required and +k8s:immutable to it)
 
 
 ### Phase 2: Apply Tag
