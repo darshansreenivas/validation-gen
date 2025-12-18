@@ -52,7 +52,7 @@ func (strategy) Validate(ctx context.Context, obj runtime.Object) field.ErrorLis
     // NEW:
     return rest.ValidateDeclarativelyWithMigrationChecks(
         obj,
-        validation.ValidateFoo, // Pass the old validation function
+        validation.ValidateFoo(), // Pass the old validation function
         nil,                    // Options (usually nil)
     )
 }
@@ -137,7 +137,7 @@ func ValidateCSIDriverName(name string, fldPath *field.Path, opts ...ValidateCSI
 }
 ```
 
-**Usage in Strategy:**
+**Usage in validations.go:**
 ```go
 // For the migrated type:
 ValidateCSIDriverName(name, path, validation.RequiredCovered)
@@ -148,7 +148,7 @@ ValidateCSIDriverName(name, path) // No options, errors returned normally
 
 ### 4. Renamed or Moved Fields (Path Normalization)
 **The Issue:**
-Declarative Validation (DV) generated code validates the **specific versioned API types** (e.g., `v1beta1` structs). However, hand-written validation typically runs against the **latest version** of the type.
+Declarative Validation (DV) generated code validates the **specific versioned API types** (e.g., `v1beta1` structs). However, hand-written validation typically runs against the kubernetes **internal type** for that type.  NOTE: this **internal type** usually maps to the **latest version** of the type.
 
 If a field structure changed between versions (e.g., nesting a field that was previously top-level), the error paths will differ:
 -   **Declarative Validation (v1beta1)**: Reports error at `spec.oldField` (the path in `v1beta1`).
@@ -238,15 +238,16 @@ If `VerifyValidationEquivalence` passes, the migration for that field is correct
 
 ## FAQ
 
-**Q: Reviewers want me to add a validation that DV doesn't support yet.**
-A: Depending on the situation you can either create a new DV tag under validation-gen and then use it OR you can implement the validation code in hand-written code as usual. You can mix both.
-
 **Q: A field was renamed/moved between `v1beta1` and `v1`. How can I use DV to handle this?**
 A: DV validation runs on the versioned type. If your hand-written validation outputs errors using new paths, you must use **Path Normalization** to map them. See [Pitfall #4](#4-renamed-or-moved-fields-path-normalization).
 
 **Q: My test failed with "Validation mismatch".**
 A: Look at the diff.
 -   If DV is missing an error: Did you forget a tag?
+-   Is the tag correct? Check for existing occurrences of the same tag.
 -   If Hand-written has an extra error: Is DV short-circuiting? (See Pitfall #1).
 -   If DV has an extra error: Did you forget to `.MarkCoveredByDeclarative()`?
+-   If Origin Mismatch -> Add origin in the handwritten validation code
 
+**Q: Is there a way to add a validation that DV doesn't support yet.**
+A: Depending on the situation you can create a new DV tag under validation-gen.  Currently this is has not been done by by someone outside of the direct Declarative Validation working group but is possible for simpler cases where the API is likely straightforward and the implementation is simple.  For example, possibly adding a new format to +k8s:format=<...>.
