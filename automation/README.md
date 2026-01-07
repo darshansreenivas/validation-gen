@@ -1,0 +1,3 @@
+This directory contains AI-generated artifacts that have been modified by humans but have not been fully reviewed or validated. They are provided here for public access, iteration, and further development. We welcome pull requests to improve these artifacts; your contributions are greatly appreciated.
+
+Note: Because these files are AI-generated, they should not be considered a source of truth. Contributors are not responsible for any errors found within them.
