@@ -9,14 +9,16 @@ This simplifies API development by making declarative tags the single source of 
 To opt-in a field to DV Native mode, use the `+k8s:declarativeValidationNative` tag.
 
 - **Tag**: `+k8s:declarativeValidationNative`
-- **Scope**: Struct field.
+- **Scope**: `fields`
 - **Purpose**: Asserts that the field's validation is fully and exclusively handled by the declarative validation framework using stable `+k8s:` validation tags on the same field.
 
-### Stability Enforcement
-
-By default, fields marked with `+k8s:declarativeValidationNative` are Native allowed to use **stable** validation tags (e.g., `+k8s:required`, `+k8s:minimum`, `+k8s:maxLength`, `+k8s:format`, `+k8s:enum`).
+### Declarative Validation Stability Levels
+Declarative Validation has the concept of "Stability Levels" for each of the declarative validation tags that are part of the framework.  The Stability Levels include: Alpha, Beta, and Stable.
 
 An up to date list of each tag and their associated Stability Level can be found at the kubernetes.io [Declarative Valdiation Tag Catalog](https://kubernetes.io/docs/reference/using-api/declarative-validation/#catalog) documentation (see the "Stability" column of the table there).
+
+### `stable` Stability Level Enforcement For DV Native Fields
+By default, fields marked with `+k8s:declarativeValidationNative` are only allowed to use Stability-Level: **stable** validation tags (e.g., `+k8s:required`, `+k8s:minimum`, `+k8s:maxLength`, `+k8s:format`, `+k8s:enum`).
 
 The `validation-gen` tool will fail code generation if an Alpha or Beta tag is used on a native declarative field, providing compile-time safety. Currently, all validations used with native mode must be stable.
 
@@ -27,7 +29,7 @@ When `validation-gen` encounters a field marked with `+k8s:declarativeValidation
 This programmatic marker allows the runtime validation logic to identify these errors as authoritative and always enforce them, regardless of the state of migration-related feature gates.
 
 ## Wiring Up Declarative Validation
-If the kubernetes API object is not currently plumbed for declarative validation, additional plumbing will need to be done first before adding the DV Native validation.  You can check if the plumbing is done by checking if there are any other current DV tags in the types.go file or by looking at the associated doc.go file and strategy.go file for the type to see if Declarative Validation has been plumbed there. See [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) for more information.
+If the kubernetes API object is not currently plumbed for declarative validation, additional plumbing will need to be done first before adding the DV Native validation. You can check if the plumbing is done by checking if there are any other current DV tags in the types.go file or by looking at the associated doc.go file and strategy.go file for the type to see if Declarative Validation has been plumbed there. See [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) for more information.
 
 ## Strategy Changes
 
@@ -57,14 +59,6 @@ In your test cases, use `.MarkDeclarativeNative()` on the expected errors for fi
         field.Required(field.NewPath("spec", "myNativeField"), "").MarkDeclarativeNative(),
     },
 }
-```
-
-### Using the Error Matcher
-
-If you are using the `field.ErrorMatcher` utility (eg: in `pkg/api/testing/validation.go`), ensure it is configured to check the `DeclarativeNative` marker using `.ByDeclarativeNative()`.
-
-```go
-errOutputMatcher := field.ErrorMatcher{}.ByType().ByOrigin().ByField().ByDeclarativeNative()
 ```
 
 ## Walkthrough: New API validation DV Native usage
