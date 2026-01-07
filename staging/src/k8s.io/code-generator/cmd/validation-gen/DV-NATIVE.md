@@ -63,7 +63,7 @@ In your test cases, use `.MarkDeclarativeNative()` on the expected errors for fi
 
 ## Walkthrough: New API validation DV Native usage
 
-This walkthrough demonstrates how to use DV Native for a new field, using the `Workload` API as an example.  
+This walkthrough demonstrates how to use DV Native for a new field, using the `Workload` API as an example.  Example PR that roughly shows this flow: https://github.com/jpbetz/validation-gen/pull/226
 
 <!-- TODO: add link to k/k PR w/ these changes -->
 
@@ -98,7 +98,7 @@ func (workloadStrategy) Validate(ctx context.Context, obj runtime.Object) field.
 
 ### 3. Write Associated Tests
 
-When writing tests for your validation logic, any expected errors being matched will need to be marked as native (as they will have this marked).
+When writing tests for your validation logic, any expected errors being matched will need to be marked as native (as they will have this marked). Example test file to show the types of tests that are written for valdiation logic and how DV Native tags can be incorporated: https://github.com/lalitc375/validation-gen/blob/7cff7eb404c2b2091ec440648498b9fe2c893b33/pkg/registry/scheduling/workload/strategy_test.go
 
 ```go
 "no pod group name": {
