@@ -59,6 +59,12 @@ Below is a short summary for how to migrate existing imperative validation to th
 
 7.  **Run Code Generation & Tests**: Run `hack/update-codegen.sh validation` and the package-specific tests (e.g., `make test WHAT=./pkg/registry/...`).
 
+### 3. Using Declarative Validation Native (DV Native) for New API Fields
+
+For net-new API fields and their validations, you can use Declarative Validation natively without writing any parallel handwritten Go code.
+
+> **Detailed Guide**: For a comprehensive, step-by-step walkthrough and examples, please read the **[DV Native Guide](DV-Native.md)**.
+
 ## Useful Commands
 
 *   **Regenerate Validation Code**:

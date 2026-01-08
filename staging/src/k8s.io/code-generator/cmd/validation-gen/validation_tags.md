@@ -8,6 +8,7 @@ This document lists the supported validation tags and their related information.
 |-----|-------------|------|-------------|----------|
 | [`k8s:eachKey`](#k8seachkey) | k8s:eachKey=\<validation-tag\> | N/A | Declares a validation for each value in a map or list. | anywhere |
 | [`k8s:eachVal`](#k8seachval) | k8s:eachVal=\<validation-tag\> | N/A | Declares a validation for each value in a map or list. | anywhere |
+| [`k8s:declarativeValidationNative`](#k8sdeclarativevalidationnative) | k8s:declarativeValidationNative | N/A | Asserts that the field's validation is fully and exclusively handled by the declarative validation framework. | struct fields |
 | [`k8s:enum`](#k8senum) | k8s:enum | N/A | Indicates that a string type is an enum. All const values of this type are considered values in the enum. | type definitions |
 | [`k8s:forbidden`](#k8sforbidden) | k8s:forbidden | N/A | Indicates that a field may not be specified. | struct fields |
 | [`k8s:format`](#k8sformat) | k8s:format=\<payload\> | N/A | Indicates that a string field has a particular format. | anywhere |
@@ -46,6 +47,12 @@ This document lists the supported validation tags and their related information.
 | Description | Docs | Schema |
 |-------------|------|---------|
 | **\<validation-tag\>** | The tag to evaluate for each value. | None |
+
+### k8s:declarativeValidationNative
+
+#### Payloads
+
+null
 
 ### k8s:enum
 
