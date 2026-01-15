@@ -55,7 +55,6 @@ type MyObject struct {
 
 	// +k8s:declarativeValidationNative
 	// +k8s:maxLength=60
-	// +k8s:minLength=50
 	// +k8s:exclusive
 	// +k8s:required
 	FieldForLength string `json:"fieldForLength"`
