@@ -71,7 +71,7 @@ When using `WithExplicitShadowing()` (Native Mode), strict stability rules apply
 
 1.  **Standard Tags MUST be Stable:** You cannot use Alpha or Beta tags as authoritative validations.
     *   *Allowed:* `+k8s:minimum`, `+k8s:enum`, `+k8s:required`, `+k8s:format` (Stable).
-    *   *Blocked:* `+k8s:cel` (if Beta/Alpha).
+    *   *Blocked:* `+k8s:neq` (if Beta/Alpha).
 2.  **Shadow Tags can be Unstable:** You generally use the `+k8s:shadow` prefix to test Alpha/Beta validation logic or to safely migrate legacy logic.
 
 ## Wiring Up Declarative Validation
